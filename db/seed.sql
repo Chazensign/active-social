@@ -29,6 +29,8 @@ user_id INTEGER REFERENCES users(id)
 --Address dummy data
 insert into user_address(city, state, zip, user_id)
 values('Provo', 'Utah', 84601, 1);
+--Remove user_address table
+drop table user_address;
 
 --About table
 create table about(

@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 
 module.exports = {
   register: async (req, res) => {
+    console.log(req.body)
     const {
       email,
       firstName,
@@ -21,15 +22,16 @@ module.exports = {
         .status(409)
         .send({ message: 'Email already registered, try logging in.' })
     }
-    const user = await db.add_user(firstName, lastName, email, profilePic)
-    const userId = user[0].user_id
+    let user = await db.add_user(firstName, lastName, email, profilePic)
+    user = user[0]
+    const userId = user.id
     const salt = bcrypt.genSaltSync(10)
     const hash = bcrypt.hashSync(password, salt)
     db.add_hash(userId, hash)
     req.session.user = {
       userId: userId,
-      profilePic: profilePic,
-      firstName: firstName,
+      profilePic: user.profile_img,
+      firstName: user.first_name,
       city: city,
       state: state,
       zip: zip
@@ -65,8 +67,8 @@ module.exports = {
       userId: user_id,
       zip: zip
     }
-
     req.session.user = user
+    res.status(200).send({message: 'Logged in.', user: user})
   },
   logOut: (req, res) => {}
 }

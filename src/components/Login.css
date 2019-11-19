@@ -1,0 +1,26 @@
+
+.login-background {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.2);
+  
+}
+.outer-login {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 250px;
+  padding: 30px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-125px, -200px);
+  z-index: 1;
+  border: 2px solid black;
+  background: #C4C4C4;
+}
+.outer-login h2 {
+  margin: 0 0 10px 0;
+}
