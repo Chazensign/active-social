@@ -1,0 +1,74 @@
+.username {
+  width: 100vw;
+  text-align: center;
+  margin-top: 20px;
+}
+.background {
+  display: flex;
+  flex-wrap: wrap;
+  
+  width: 100vw;
+  height: auto;
+  background: grey;
+  margin-top: 80px;
+}
+.contact-cont {
+  height: 400px;
+  width: 200px;
+  background: white;
+  box-shadow: inset 0px 0px 4px 1px #000000;
+  border-radius: 3px;
+  margin: 20px;
+}
+.contact-cont h3 {
+  margin: 0;
+}
+.activ-img {
+  width: 100px;
+}
+.activ-cont {
+  width: 300px;
+  height: 300px;
+  margin: 20px;
+  overflow: scroll;
+  background: white;
+  box-shadow: inset 0px 0px 4px 1px #000000;
+  border-radius: 3px;
+}
+.act-list-item {
+  display: flex;
+  margin: 5px;
+}
+.outer-events {
+  width: 500px;
+  height: 300px;
+  margin: 20px;
+  background: white;
+  box-shadow: inset 0px 0px 4px 1px #000000;
+  border-radius: 3px;
+}
+.event-li {
+  display: flex;
+}
+.event-li img {
+  width: 150px;
+}
+.outermost-search {
+  padding: 0 30px 0 30px;
+}
+.search-box h2 {
+  margin: 0;
+}
+.search-box form{
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+}
+.search-box form button {
+  margin: 10px;
+}
+.search-results {
+  width: 200px;
+  height: 200px;
+  background: white;
+}

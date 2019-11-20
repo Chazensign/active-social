@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import Login from './Login'
 import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { setUser } from '../ducks/reducer'
+import { withRouter } from 'react-router-dom'
 import './Header.css'
 
 class Header extends Component {
@@ -26,11 +28,13 @@ class Header extends Component {
         password: this.state.password
       })
       .then(res => {
+        this.showLogin()
         this.props.setUser(res.data.user)
+        this.props.history.push(`/user/${this.props.userId}`)
         alert(res.data.message)
       })
       .catch(err => {
-        alert(err.response.data.message)
+        alert(err.message)
       })
   }
 
@@ -42,19 +46,29 @@ class Header extends Component {
     return (
       <>
         <header>
-          <h1>Logo/Title</h1>
-          <div onClick={this.showLogin} >Login</div>
+          <Link to='/'><h1>Logo/Title</h1></Link>
+          <nav>
+          {!this.state.loginDisp ? (
+            <div onClick={this.showLogin} >Login</div>
+          ) : (
+            <div onClick={this.showLogin} >Cancel</div>
+
+          )}
+          <Link to='/wizard/step1'>Register</Link>
+          </nav>
           <div>
-            <img src={this.props.profilePic} alt='profile' />
+            <img hidden={!this.props.profilePic} src={this.props.profilePic} alt='profile' />
             <div>{this.props.firstName}</div>
           </div>
         </header>
-        {this.state.loginDisp ? <Login
-          login={this.login}
-          email={this.state.email}
-          password={this.state.password}
-          handleChange={this.handleChange}
-        /> : null}
+        {this.state.loginDisp ? (
+          <Login
+            login={this.login}
+            email={this.state.email}
+            password={this.state.password}
+            handleChange={this.handleChange}
+          />
+        ) : null}
       </>
     )
   }
@@ -63,8 +77,9 @@ class Header extends Component {
 function mapStateToProps(reduxState) {
   return {
     profilePic: reduxState.profilePic,
-    firstName: reduxState.firstName
+    firstName: reduxState.firstName,
+    userId: reduxState.userId
   }
 }
 
-export default connect(mapStateToProps, {setUser})(Header)
+export default withRouter(connect(mapStateToProps, {setUser})(Header))

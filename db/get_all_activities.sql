@@ -1,0 +1,1 @@
+select activ_id, activ_title from activities;

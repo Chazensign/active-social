@@ -1,7 +1,7 @@
-import React from 'react';
+import React from 'react'
+import { Link } from 'react-router-dom'
 
 const Step1 = (props) => {
-  console.log(props.userInfo)
   const { email, password, password2, firstName, lastName, birthDate, state, city, zip } = props.userInfo
   return ( 
     <div className='step-1' >
@@ -23,7 +23,7 @@ const Step1 = (props) => {
       <input name='password' value={password} onChange={e => props.handleChange(e.target)} type="password"/>
       <div>Re-Enter Password</div>
       <input name='password2' value={password2} onChange={e => props.handleChange(e.target)} type="password"/>
-      <button>Back</button>
+      <Link to='/' ><button>Back</button></Link>
       <button onClick={props.createUser}>Register</button>
     </div>
    );

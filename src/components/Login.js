@@ -10,7 +10,7 @@ const Login = (props) => {
     <input name='email' value={props.email} onChange={e => props.handleChange(e.target)} type='text' />
     <div>Password:</div>
     <input name='password' value={props.password} onChange={e => props.handleChange(e.target)} type='password' />
-    <button onClick={props.login} >Submit</button>
+    <button className='login-submit' onClick={props.login} >Submit</button>
     </div>
     </div>
    );

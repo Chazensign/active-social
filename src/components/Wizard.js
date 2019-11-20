@@ -32,13 +32,16 @@ class Wizard extends Component {
       return alert('Passwords do not match.')
     }
     axios.post('/auth/register', this.state)
-    .then(res => {
-      console.log(res.data.message)
-      this.props.setUser(res.data.user)
+    .then(async res => {
+      alert(res.data.message)
+      await this.props.setUser(res.data.user)
+      this.props.history.push(`/user/${this.props.userId}`)
     })
   }
 
   render() {
+    console.log(this.state.birthDate);
+    
     return (
       <Switch>
         <Route
@@ -57,7 +60,8 @@ class Wizard extends Component {
 function mapStateToProps(reduxState) {
   return {
     profilePic: reduxState.profilePic,
-    firstName: reduxState.firstName
+    firstName: reduxState.firstName,
+    userId: reduxState.userId
   }
 }
 
