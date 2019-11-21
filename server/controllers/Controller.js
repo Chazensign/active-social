@@ -10,9 +10,11 @@ module.exports = {
 
   getUsersFriends: async (req, res) => {
     const { id } = req.params
-    const db = req.app.get('db')
-    const friends = await db.get_users_friends(id)
-    res.status(200).send(friends)
+    if (id !== 0 && id !== undefined) {
+      const db = req.app.get('db')
+      const friends = await db.get_users_friends(id)
+      res.status(200).send(friends)
+    }
   },
 
   getUsersEvents: async (req, res) => {
@@ -32,7 +34,6 @@ module.exports = {
   findUsers: async (req, res) => {
     let zips = []
     const { zip, range, lessons, activ } = req.body
-    console.log(req)
     await axios({
       method: 'GET',
       url: `https://redline-redline-zipcode.p.rapidapi.com/rest/radius.json/${zip}/${range}/mile`,

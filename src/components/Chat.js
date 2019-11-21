@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import './Chat.css'
+// import './Chat.css'
 import io from 'socket.io-client'
 import { connect } from 'react-redux'
+import styled from 'styled-components'
 
 class Chat extends Component {
   constructor() {
@@ -11,14 +12,15 @@ class Chat extends Component {
       messages: [],
       room: '',
       roomId: 0,
+      userId: 0,
+      userId2: 0,
       userName: '',
       userName2: '',
-      activity: '',
       joined: false
     }
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
     this.socket = io()
     this.socket.on('room joined', data => {
       this.joinSuccess(data)
@@ -26,13 +28,14 @@ class Chat extends Component {
     this.socket.on('message dispatched', data => {
       this.updateMessages(data)
     })
-    this.setState(
-      {
-        userName: this.props.userName,
-        userName2: this.props.userName2,
-        activity: this.props.activity
-      })
-    this.joinRoom()
+    this.setState({
+      userName: this.props.userName,
+      userName2: this.props.userName2,
+      activity: this.props.activity,
+      userId: this.props.userId,
+      userId2: this.props.userId2
+    },() => this.joinRoom())
+    
   }
 
   // componentWillUnmount() {
@@ -57,41 +60,44 @@ class Chat extends Component {
     })
   }
 
-  joinRoom = () => {
-    let roomName = ''
-    if (this.state.activity) {
-      roomName = this.state.activity
-    } else if (this.state.userName2) {
-      roomName = `${this.state.userName} and ${this.state.userName2}`
-    } else {
-      roomName = `${this.props.userName}'s Public Chat`
+  joinRoom = async () => {
+
+    let asignRoomName = () => {
+      if (this.state.activity) {
+        return this.state.activity
+      } else if (this.state.userName2) {
+        return `${this.state.userName} and ${this.state.userName2}`
+      } else if (this.state.userName) {
+        return this.state.userName
+      } else {
+        console.log('returning null')
+        return null
+      }
     }
-    if (this.state.room) {
+    let roomName = await asignRoomName()
+    if (roomName) {
       this.socket.emit('join room', {
-        roomId: this.state.roomId,
         room: roomName
       })
     }
   }
-
   joinSuccess = data => {
     this.setState({
       roomId: data.roomId,
+      room: data.room,
       joined: true,
       messages: data.messages
     })
   }
-
   render() {
     return (
-      <div className='chat-box'>
-        {this.state.joined ? <h1>My Room: {this.state.room}</h1> : null}
+      <ChatBox background={this.props.privateChat} >
+        {this.state.joined ? <h1>{this.state.room}</h1> : null}
         <div className='messages-cont'>
           {this.state.messages.map(messageObj => (
             <p key={messageObj.message_id}>{messageObj.message}</p>
           ))}
         </div>
-        {this.state.joined ? (
           <div>
             <input
               value={this.state.input}
@@ -103,20 +109,7 @@ class Chat extends Component {
             />
             <button onClick={this.sendMessage}>Send</button>
           </div>
-        ) : (
-          <div>
-            <input
-              value={this.state.room}
-              onChange={e => {
-                this.setState({
-                  room: e.target.value
-                })
-              }}
-            />
-            <button onClick={this.joinRoom}>Join</button>
-          </div>
-        )}
-      </div>
+      </ChatBox>
     )
   }
 }
@@ -130,3 +123,32 @@ function mapStateToProps(reduxState) {
 }
 
 export default connect(mapStateToProps)(Chat)
+
+
+
+
+const ChatBox = styled.div`
+    margin: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  
+  .messages-cont {
+    height: 400px;
+    width: 250px;
+    background: ${props => props.background ? 'red' : 'white'};
+    box-shadow: inset 0px 0px 4px 1px #000000;
+    border-radius: 3px;
+  }
+  .messages-cont p {
+    width: 300px;
+    height: auto;
+  }
+`
+
+
+
+
+
+

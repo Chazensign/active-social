@@ -7,14 +7,15 @@ import Chat from './Chat';
 import FriendList from './FriendList';
 import EventList from './EventList';
 import ActivitiesList from './ActivitiesList';
+import ChatModal from './ChatModal';
 
 class User extends Component {
   constructor(props) {
     super(props);
     this.state = { 
+      otherChatter: '',
+      otherChatterId: 0,
       conversations: [],
-      user: {},
-      userActivities: [],
       activitiesList: [],
       aboutContent: '',
       activ: '',
@@ -24,24 +25,12 @@ class User extends Component {
       privateChat: false,
      }
   }
-  // componentDidMount = () => {
-  //   if (this.props.match.params.user_id === undefined) {
-  //     axios
-  //       .get(`/api/user/${this.props.match.params.user_id}`)
-  //       .then(res => {
-  //         this.setState({
-  //           friends: res.data.friends,
-  //           events: res.data.events,
-  //           userActivities: res.data.activities
-  //         })
-  //       })
-  //       .catch(err => console.log(err))
-  //   axios.get('/api/activities')
-  //   .then(res => {
-  //     this.setState({ activitiesList: res.data });
-  //   })
-  //   }
-  // }
+  componentDidMount = () => {
+    axios.get('/api/activities')
+    .then(res => {
+      this.setState({ activitiesList: res.data });
+    })
+  }
   userSearch = () => {
     axios.post('/api/search', {zip: +this.props.zip, range: +this.state.range })
     .then(res => {
@@ -55,9 +44,12 @@ class User extends Component {
     this.setState({[trg.name]: trg.value });
   }
 
-  showPrivateChat = (name) => {
-    this.setState({ privateChat: true });
-    return <div className='chat-popup' ><Chat userName={this.props.firstName} userName2={name} /></div>
+  showPrivateChat = (id, name) => {
+    this.setState({ privateChat: true, otherChatter: name, otherChatterId: id })
+  }
+
+  hidePrivateChat = () => {
+    this.setState({ privateChat: false })
   }
 
   render() { 
@@ -66,12 +58,27 @@ class User extends Component {
         <h1 className='username'>
           {this.props.firstName} {this.props.lastName}
         </h1>
+        <ChatModal
+          hide={this.hidePrivateChat}
+          userId={this.props.userId}
+          userName={this.props.firstName}
+          userId2={this.state.otherChatterId}
+          userName2={this.state.otherChatter}
+          hidden={this.state.privateChat}
+        />
+        {/* <Chat 
+          userName={this.props.firstName}
+           userName2={name}
+            /> */}
         <FriendList
           showPrivateChat={this.showPrivateChat}
           userId={this.props.match.params.user_id}
         />
         <ActivitiesList userId={this.props.match.params.user_id} />
-        <Chat userName={this.props.firstName} />
+        <Chat
+          userId={this.props.match.params.user_id}
+          userName={this.props.firstName}
+        />
         <EventList userId={this.props.match.params.user_id} />
         <div className='outermost-search'>
           <div className='search-box'>

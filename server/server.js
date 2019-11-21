@@ -49,8 +49,11 @@ io.on('connection', (socket) => {
   console.log('User connected')
 
   socket.on('join room', async data => {
-    const { roomId, room } = data
+    const { room } = data
     const db = app.get('db')
+    // if (typeof room === 'object') {
+      
+    // }
     console.log('Room joined', room)
     let existingRoom = await db.check_room({ room: room })
     !existingRoom.length ? db.create_room({ room: room }) : null
@@ -58,14 +61,13 @@ io.on('connection', (socket) => {
     let roomsId = await db.get_room_id(room)
     roomsId = roomsId[0]
     socket.join(room)
-    io.to(room).emit('room joined', {messages: messages, roomId: roomsId.room_id})
+    io.to(room).emit('room joined', {room: room, messages: messages, roomId: roomsId.room_id})
   })
   socket.on('message sent', async data => {
     
     const { room, roomId, userId, message } = data
-    console.log(userId)
     const db = app.get('db')
-    await db.create_message({ room: roomId, user_id: userId, message: message })
+    await db.create_message(roomId, userId, message)
     let messages = await db.fetch_message_history({ room: room })
     io.to(data.room).emit('message dispatched', messages)
   })

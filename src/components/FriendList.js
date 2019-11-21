@@ -28,7 +28,7 @@ class FriendList extends Component {
                   </h3>
                 </div>
               </Link>
-              <button onClick={() => this.props.showPrivateChat(friend.id)}>
+              <button onClick={() => this.props.showPrivateChat(friend.id, friend.first_name)}>
                 Chat
               </button>
             </div>

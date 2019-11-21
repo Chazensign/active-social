@@ -137,7 +137,9 @@ insert into users_events(event_id, user_id)
 values(1, 11);
 
 --Socket Rooms table
-create table socket_rooms(room_id serial primary key, room_name varchar(20));
+create table socket_rooms(
+  room_id serial primary key, 
+  room_name varchar(40));
 
 --Socket messages table
 create table socket_messages(
