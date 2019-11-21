@@ -38,9 +38,9 @@ class Chat extends Component {
     
   }
 
-  // componentWillUnmount() {
-  //   this.socket.disconnect()
-  // }
+  componentWillUnmount() {
+    this.socket.disconnect()
+  }
 
   sendMessage = () => {
     this.socket.emit('message sent', {
@@ -66,7 +66,10 @@ class Chat extends Component {
       if (this.state.activity) {
         return this.state.activity
       } else if (this.state.userName2) {
-        return `${this.state.userName} and ${this.state.userName2}`
+        return {
+          room1: `${this.state.userName} and ${this.state.userName2}`,
+          room2: `${this.state.userName2} and ${this.state.userName}`
+        }
       } else if (this.state.userName) {
         return this.state.userName
       } else {
@@ -135,14 +138,22 @@ const ChatBox = styled.div`
     justify-content: center;
   
   .messages-cont {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    box-sizing: border-box;
     height: 400px;
     width: 250px;
     background: ${props => props.background ? 'red' : 'white'};
     box-shadow: inset 0px 0px 4px 1px #000000;
     border-radius: 3px;
+    overflow-y: initial;
+    padding-bottom: 70px;
   }
   .messages-cont p {
-    width: 300px;
+    padding: 0 10px 0 10px;
+    margin: 5px;
     height: auto;
   }
 `

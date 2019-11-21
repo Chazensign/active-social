@@ -49,19 +49,34 @@ io.on('connection', (socket) => {
   console.log('User connected')
 
   socket.on('join room', async data => {
+    let existingRoom =  []
     const { room } = data
     const db = app.get('db')
-    // if (typeof room === 'object') {
-      
-    // }
+    if (typeof room === 'object') {
+      const { room1, room2 } = room
+      existingRoom = await db.check_for_two_rooms(room1, room2)
+      !existingRoom.length
+      ? db.create_room({ room: room1 })
+      : (existingRoom = existingRoom[0].room_name)
+      console.log('Room joined', existingRoom)
+      console.log(existingRoom)
+    }else {
     console.log('Room joined', room)
-    let existingRoom = await db.check_room({ room: room })
-    !existingRoom.length ? db.create_room({ room: room }) : null
-    let messages = await db.fetch_message_history({ room: room })
-    let roomsId = await db.get_room_id(room)
+    existingRoom = await db.check_room({ room: room })
+    !existingRoom.length
+      ? db.create_room({ room: room })
+      : (existingRoom = room)
+    }
+    
+    let messages = await db.fetch_message_history({ room: existingRoom })
+    let roomsId = await db.get_room_id(existingRoom)
     roomsId = roomsId[0]
-    socket.join(room)
-    io.to(room).emit('room joined', {room: room, messages: messages, roomId: roomsId.room_id})
+    socket.join(existingRoom)
+    io.to(existingRoom).emit('room joined', {
+      room: existingRoom,
+      messages: messages,
+      roomId: roomsId.room_id
+    })
   })
   socket.on('message sent', async data => {
     

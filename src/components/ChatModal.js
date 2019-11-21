@@ -25,6 +25,3 @@ align-items: center;
 z-index: 10;
 background: rgba(0, 0, 0, .7);
 `
-const PrivateChatBox = styled(Chat)`
-
-`
