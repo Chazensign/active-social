@@ -1,39 +1,38 @@
 const axios = require('axios')
 
 module.exports = {
-  getUserPage: async (req, res) => {
-    const { userId } = req.params
-    const db = req.app.get('db')
-    let userObj = { friends: friends, activities: activ, events: events }
-    res.status(200).send(userObj)
-  },
 
   getUsersFriends: async (req, res) => {
     const { id } = req.params
-    if (id !== 0 && id !== undefined) {
-      const db = req.app.get('db')
+    if (id !== 0 && id !== 'undefined') {
+      const db = await req.app.get('db')
       const friends = await db.get_users_friends(id)
-      res.status(200).send(friends)
+      return res.status(200).send(friends)
     }
+    return res.status(403).send({message: 'Please login'})
   },
 
   getUsersEvents: async (req, res) => {
     const { userId } = req.params
-    const db = req.app.get('db')
+    const db = await req.app.get('db')
     let events = await db.get_users_events(userId)
-    res.status(200).send(events)
+    if (events) return res.status(200).send(events)
+    return res.sendStatus(403)
   },
 
   getUsersActiv: async (req, res) => {
     const { userId } = req.params
-    const db = req.app.get('db')
+    if (userId !== 0 && userId !== 'undefined') {
+    const db = await req.app.get('db')
     let activ = await db.get_user_activ(userId)
-    res.status(200).send(activ)
+    return res.status(200).send(activ)
+    }
+    return res.sendStatus(403)
   },
 
   findUsers: async (req, res) => {
     let zips = []
-    const { zip, range, lessons, activ } = req.body
+    const { zip, range} = req.query
     await axios({
       method: 'GET',
       url: `https://redline-redline-zipcode.p.rapidapi.com/rest/radius.json/${zip}/${range}/mile`,
@@ -46,8 +45,8 @@ module.exports = {
       .then(response => {
         zips = response.data.zip_codes.map(info => info.zip_code)
       })
-      .catch(error => {})
-    const db = req.app.get('db')
+      .catch((error) => {console.log(error)})
+    const db = await req.app.get('db')
     db.find_users_by_zip().then(async result => {
       let usersToSend = []
       filterUsers = async () => {
@@ -66,5 +65,13 @@ module.exports = {
   getActivities: (req, res) => {
     const db = req.app.get('db')
     db.get_all_activities().then(result => res.status(200).send(result))
+  },
+  getMemeberInfo: (req, res) => {
+    const db = req.app.get('db')
+    db.get_member_info(req.params.id)
+    .then(result => {
+      const userInfo = result[0]
+      res.status(200).send(userInfo)
+    })
   }
 }

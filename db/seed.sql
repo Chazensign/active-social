@@ -40,7 +40,14 @@ about_content text
 );
 --added birth date into about table
 alter table about
-add COLUMN birth_date TIMESTAMP;
+add COLUMN birth_date DATE;
+
+--About table dummy data
+insert into about(user_id, about_content, birth_date)
+values(11, 'Hey there, my name is Chaz and I do lots of fun stuff! Just kidding I dont"t get out very often because I don"t have any friends in the area.  That is the reason I joined this site, so if you are into any of the same sports just hit me up.',
+'1984-05-16')
+(12, 'Hey there, my name is Chaz and I do lots of fun stuff! Just kidding I dont"t get out very often because I don"t have any friends in the area.  That is the reason I joined this site, so if you are into any of the same sports just hit me up.',
+'1985-04-16');
 
 --Password hash table
 create table hash(

@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-// import './Chat.css'
 import io from 'socket.io-client'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
@@ -98,7 +97,11 @@ class Chat extends Component {
         {this.state.joined ? <h1>{this.state.room}</h1> : null}
         <div className='messages-cont'>
           {this.state.messages.map(messageObj => (
-            <p key={messageObj.message_id}>{messageObj.message}</p>
+            <div 
+              className={ this.state.userId === messageObj.user_id ? 'user-message message': 'others-message message'} 
+              key={messageObj.message_id} >
+              <p >{messageObj.message}</p>
+            </div>
           ))}
         </div>
           <div>
@@ -131,12 +134,12 @@ export default connect(mapStateToProps)(Chat)
 
 
 const ChatBox = styled.div`
-    margin: 50px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  
+  margin: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
   .messages-cont {
     display: flex;
     flex-direction: column;
@@ -145,16 +148,33 @@ const ChatBox = styled.div`
     box-sizing: border-box;
     height: 400px;
     width: 250px;
-    background: ${props => props.background ? 'red' : 'white'};
+    background: ${props => (props.background ? 'red' : 'white')};
     box-shadow: inset 0px 0px 4px 1px #000000;
     border-radius: 3px;
-    overflow-y: initial;
+    overflow: scroll;
     padding-bottom: 70px;
   }
-  .messages-cont p {
-    padding: 0 10px 0 10px;
+  .message {
+    box-sizing: border-box;
+    max-width: 175px;
+    padding: 2px 7px 2px 7px;
     margin: 5px;
-    height: auto;
+    border-radius: 10px;
+    font-size: 14px;
+    box-shadow: inset 0px 0px 5px 0px rgba(0, 0, 0, 0.8);
+  }
+  .user-message {
+    background: #04ff00;
+    align-self: flex-end;
+  }
+  .others-message {
+    background: #0073ff;
+    align-self: flex-start;
+    color: white;
+  }
+  .message p {
+    padding: 0;
+    margin: 0;
   }
 `
 

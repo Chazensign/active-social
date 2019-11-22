@@ -41,24 +41,36 @@ class Header extends Component {
   showLogin = () => {
     this.setState({ loginDisp: !this.state.loginDisp });
   }
+  toUserProfile = () => {
+    this.props.history.push(`/user/${this.props.userId}`)
+  }
 
   render() {
     return (
       <>
         <header>
-          <Link to='/'><h1>Logo/Title</h1></Link>
+          <Link to='/'>
+            <h1>Logo/Title</h1>
+          </Link>
           <nav>
-          {!this.state.loginDisp ? (
-            <div onClick={this.showLogin} >Login</div>
-          ) : (
-            <div onClick={this.showLogin} >Cancel</div>
-
-          )}
-          <Link to='/wizard/step1'>Register</Link>
+            {!this.state.loginDisp ? (
+              <div className='log-cancel' onClick={this.showLogin}>
+                Login
+              </div>
+            ) : (
+              <div className='log-cancel' onClick={this.showLogin}>
+                Cancel
+              </div>
+            )}
+            <Link to='/wizard/step1'>Register</Link>
           </nav>
           <div>
-            <img hidden={!this.props.profilePic} src={this.props.profilePic} alt='profile' />
-            <div>{this.props.firstName}</div>
+            <img
+              hidden={!this.props.profilePic}
+              src={this.props.profilePic}
+              alt='profile'
+            />
+            <div onClick={this.toUserProfile}>{this.props.firstName}</div>
           </div>
         </header>
         {this.state.loginDisp ? (

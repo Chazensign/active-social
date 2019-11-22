@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs')
 
 module.exports = {
   register: async (req, res) => {
-    console.log(req.body)
     const {
       email,
       firstName,
@@ -16,7 +15,7 @@ module.exports = {
     } = req.body
     // if (new  Date().toString() - birth_date > 18)
     const db = req.app.get('db')
-    const foundUser = await db.find_user(email)
+    const foundUser = await db.retrieve_user(email)
     if (foundUser.length > 0) {
       return res
         .status(409)
@@ -70,5 +69,13 @@ module.exports = {
     req.session.user = user
     res.status(200).send({message: 'Logged in.', user: user})
   },
-  logOut: (req, res) => {}
+  logOut: (req, res) => {},
+
+  getSession: (req, res) => {
+    if (req.session.user.firstName) {
+      const user = {...req.session.user}
+      return res.status(200).send({user: user})
+    }
+    res.status(404).send({message: 'Session not found'})
+  }
 }

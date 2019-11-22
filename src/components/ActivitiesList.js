@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
+import styled from 'styled-components'
 
 class ActivitiesList extends Component {
   constructor(props) {
@@ -18,7 +19,7 @@ class ActivitiesList extends Component {
 
   render() {
     return (
-      <div className='activ-cont'>
+      <ActivitiesContainer>
         {this.state.userActivities.map(activ => {
           return (
             <Link key={activ.activ_id} to={`/activity/${activ.activ_id}`}>
@@ -29,9 +30,27 @@ class ActivitiesList extends Component {
             </Link>
           )
         })}
-      </div>
+      </ActivitiesContainer>
     )
   }
 }
 
 export default ActivitiesList
+
+const ActivitiesContainer = styled.div`
+  width: 300px;
+  height: 300px;
+  margin: 20px;
+  overflow: scroll;
+  background: white;
+  box-shadow: inset 0px 0px 4px 1px #000000;
+  border-radius: 3px;
+
+  .activ-img {
+    width: 100px;
+  }
+  .act-list-item {
+    display: flex;
+    margin: 5px;
+  }
+`

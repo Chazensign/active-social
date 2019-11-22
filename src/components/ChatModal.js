@@ -23,5 +23,5 @@ display: flex;
 justify-content: center;
 align-items: center;
 z-index: 10;
-background: rgba(0, 0, 0, .7);
+background: rgba(0, 0, 0, .8);
 `
