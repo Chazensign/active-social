@@ -6,9 +6,8 @@
 .background {
   display: flex;
   flex-wrap: wrap;
-  
   width: 100vw;
-  height: auto;
+  height: 100vw;
   background: grey;
   margin-top: 80px;
 }

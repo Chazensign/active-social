@@ -6,7 +6,7 @@ import Member from './components/Member'
 import Chat from './components/Chat'
 import UserSearch from './components/UserSearch';
 import User from './components/User';
-import Activity from './components/Activity';
+import ActivityView from './components/ActivityView';
 
 
 export default (
@@ -17,7 +17,7 @@ export default (
     <Route path='/chat' component={Chat} ></Route>
     <Route path='/search' component={UserSearch} ></Route>
     <Route path='/user/:user_id' component={User} ></Route>
-    <Route path='/activity/:activ_id' component={Activity} ></Route>
+    <Route path='/activity/:activ_id' component={ActivityView} ></Route>
     {/* <Route path='' component={} ></Route> */}
     {/* <Route path='' component={} ></Route> */}
     {/* <Route path='' component={} ></Route> */}

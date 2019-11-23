@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios'
 import { Link } from 'react-router-dom'
+import styled from 'styled-components'
 
 class UserSearch extends Component {
   constructor(props) {
@@ -37,8 +38,7 @@ class UserSearch extends Component {
 
   render() {
     return (
-      <div>
-        UserSearch
+      <SearchContainer>
         <div className='outermost-search'>
           <div className='search-box'>
             <h2>Find Users</h2>
@@ -89,9 +89,16 @@ class UserSearch extends Component {
             })}
           </div>
         </div>
-      </div>
+      </SearchContainer>
     )
   }
 }
  
 export default UserSearch;
+
+const SearchContainer = styled.div`
+  .search-results {
+    box-shadow: inset 0px 0px 4px 1px #000000;
+    border-radius: 3px;
+  }
+`

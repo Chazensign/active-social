@@ -10,9 +10,14 @@ class FriendList extends Component {
     }
   }
   componentDidMount = () => {
+    console.log(this.props);
+    
     if (this.props.userId) {
     axios.get(`/api/friends/${this.props.userId}`)
     .then(res => this.setState({ friends: res.data }))
+    }
+    else if (this.props.userNames) {
+      this.setState({ friends: [...this.props.userNames]});
     }
   }
   goToUserPage = (id) => {
@@ -21,7 +26,7 @@ class FriendList extends Component {
   }
 
   render() {
-    console.log(this.props)
+    
     return (
       <FriendContainer>
       <div className='contact-cont'>

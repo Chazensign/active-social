@@ -39,7 +39,7 @@ export default ActivitiesList
 
 const ActivitiesContainer = styled.div`
   width: 300px;
-  height: 300px;
+  height: 400px;
   margin: 20px;
   overflow: scroll;
   background: white;

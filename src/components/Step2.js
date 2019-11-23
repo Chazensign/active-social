@@ -2,10 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 
 const Step2 = props => {
-  console.log(Step2Page)
   return (
     <Step2Page>
-      {console.log(window.document.getElementsByName('activities'))}
       <h4>Select All Your Interests</h4>
       <div className='checkbox-cont'>
         {props.activities.map(activ => {
@@ -23,12 +21,17 @@ const Step2 = props => {
         })}
       </div>
       <button
-        onClick={() =>{
+        onClick={() => {
+          props.history.push('/wizard/step1')
+        }}>
+        Back
+      </button>
+      <button
+        onClick={() => {
           props.history.push('/wizard/step3')
           props.addActivity(window.document.getElementsByName('activities'))
-        }
-        }>
-        Submit
+        }}>
+        Next
       </button>
     </Step2Page>
   )

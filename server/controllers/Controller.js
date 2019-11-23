@@ -73,5 +73,20 @@ module.exports = {
       const userInfo = result[0]
       res.status(200).send(userInfo)
     })
+  },
+  activityPageInfo: async(req, res) => {
+    const db = await req.app.get('db')
+    let actId = +req.params.id
+    console.log(typeof +req.params.id,'before users')
+    let users = await db.get_users_by_activ(+req.params.id)
+    console.log(req.params.id, users)
+    let events = await db.get_events_by_activ(+req.params.id)
+    console.log(events)
+    let activ = await db.get_one_activ(+req.params.id)
+    console.log(activ)
+    let instructors = await db.get_instructors(+req.params.id)
+    console.log(instructors);
+    
+    res.status(200).send({users: users, events: events, activ: activ[0], instructors: instructors})
   }
 }

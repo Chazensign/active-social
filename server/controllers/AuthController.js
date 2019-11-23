@@ -10,10 +10,11 @@ module.exports = {
       city,
       state,
       zip,
-      // birth_date,
-      password
+      birthDate,
+      password,
+      userActivs
     } = req.body
-    // if (new  Date().toString() - birth_date > 18)
+    // if (new  Date().toString() - birth_date > 18) res.status(451).send({message: 'You must be at least 18 years old to register.'})
     const db = req.app.get('db')
     const foundUser = await db.retrieve_user(email)
     if (foundUser.length > 0) {
@@ -41,6 +42,9 @@ module.exports = {
       .send({
         message: 'Account created, you are logged in.',
         user: req.session.user
+      })
+      userActivs.forEach(activ => {
+        db.add_interests(activ.activId, userId, activ.activContent, activ.skillLevel, activ.lessons);
       })
   },
   login: async (req, res) => {

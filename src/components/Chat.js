@@ -134,7 +134,8 @@ export default connect(mapStateToProps)(Chat)
 
 
 const ChatBox = styled.div`
-  margin: 50px;
+  margin: 0 20px 0 20px;
+  height: 450px;
   display: flex;
   flex-direction: column;
   align-items: center;

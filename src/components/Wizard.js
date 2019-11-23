@@ -26,49 +26,67 @@ class Wizard extends Component {
       userActivs: []
     }
   }
+
   componentDidMount = () => {
     axios.get('/api/activities').then(res => {
       this.setState({ activities: res.data })
     })
   }
+
   handleChange = trg => {
     this.setState({ [trg.name]: trg.value })
   }
-  createUser = () => {
+
+  createUser = async () => {
     if (this.state.password !== this.state.password2) {
       return alert('Passwords do not match.')
     }
-    axios.post('/auth/register', this.state).then(async res => {
+    await axios.post('/auth/register', this.state).then(async res => {
       alert(res.data.message)
       await this.props.setUser(res.data.user)
-      this.props.history.push(`/user/${this.props.userId}`)
     })
+    this.setState({
+      email: '',
+      password: '',
+      password2: '',
+      firstName: '',
+      lastName: '',
+      birthDate: '',
+      city: '',
+      state: '',
+      zip: 0,
+      activities: [],
+      userActivs: []
+    })
+    this.props.history.push(`/user/${this.props.userId}`)
   }
+
   addActivity = allActivBoxes => {
       let userActs = []
-      console.log(allActivBoxes[0].checked)
       for (var i = 0; i < allActivBoxes.length; i++) {
         if (allActivBoxes[i].checked) {
           userActs.push({
             activId: allActivBoxes[i].value,
-            activTitle: allActivBoxes[i].id
+            activTitle: allActivBoxes[i].id,
+            lessons: false
           })
       }
       this.setState({ userActivs: userActs })
     }
   }
 
-  updateUserActivs = (trg, i) => {
+  updateUserActivs = (name, value, i) => {
+    let activeArr = [...this.state.userActivs]
     let activObj = {...this.state.userActivs[i]}
-    activObj = activObj[trg.name] = trg.value
+    activObj = {...activObj, [name]: value}
+    activeArr[i] = activObj
     this.setState({
-      userActivs: [...this.state.userActivs, this.state.userActivs[i]: activObj ]
+      userActivs:  [...activeArr]
     })
   }
 
   render() {
-    console.log(this.state.userActivs)
-
+  
     return (
       <WizardBack>
         <Switch>
@@ -76,7 +94,7 @@ class Wizard extends Component {
             path='/wizard/step1'
             render={() => (
               <Step1
-                createUser={this.createUser}
+                {...this.props}
                 handleChange={this.handleChange}
                 userInfo={this.state}
               />
@@ -96,6 +114,8 @@ class Wizard extends Component {
             path='/wizard/step3'
             render={() => (
               <Step3
+              {...this.props}
+                createUser={this.createUser}
                 userActivs={this.state.userActivs}
                 updateUserActivs={this.updateUserActivs}
               />
@@ -122,6 +142,7 @@ const WizardBack = styled.div`
   height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  margin-top: 120px;
+  /* align-items: center;
+  justify-content: center; */
 `
