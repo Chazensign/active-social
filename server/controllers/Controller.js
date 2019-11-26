@@ -13,11 +13,18 @@ module.exports = {
   },
 
   getUsersEvents: async (req, res) => {
-    const { userId } = req.params
+    const { userId, activId } = req.params
+    let events
     const db = await req.app.get('db')
-    let events = await db.get_users_events(userId)
-    if (events) return res.status(200).send(events)
+    if (userId) {
+    events = await db.get_users_events(userId)
+    return res.status(200).send(events)
+    } else if (activId) {
+      events = await db.get_events_by_activ(activId)
+      return res.status(200).send(events)
+    } else {
     return res.sendStatus(403)
+    }
   },
 
   getUsersActiv: async (req, res) => {
@@ -62,31 +69,79 @@ module.exports = {
       res.status(200).send(usersToSend)
     })
   },
-  getActivities: (req, res) => {
-    const db = req.app.get('db')
-    db.get_all_activities().then(result => res.status(200).send(result))
+  getActivities: async (req, res) => {
+    const db = await req.app.get('db')
+    db.get_all_activities()
+    .then(result => res.status(200).send(result))
   },
-  getMemeberInfo: (req, res) => {
-    const db = req.app.get('db')
+  getMemeberInfo: async (req, res) => {
+    const db = await req.app.get('db')
     db.get_member_info(req.params.id)
     .then(result => {
       const userInfo = result[0]
       res.status(200).send(userInfo)
     })
   },
-  activityPageInfo: async(req, res) => {
+  activityPageInfo: async (req, res) => {
+    console.log(req.params.id);
     const db = await req.app.get('db')
-    let actId = +req.params.id
-    console.log(typeof +req.params.id,'before users')
     let users = await db.get_users_by_activ(+req.params.id)
-    console.log(req.params.id, users)
     let events = await db.get_events_by_activ(+req.params.id)
-    console.log(events)
     let activ = await db.get_one_activ(+req.params.id)
-    console.log(activ)
     let instructors = await db.get_instructors(+req.params.id)
-    console.log(instructors);
-    
+
     res.status(200).send({users: users, events: events, activ: activ[0], instructors: instructors})
+  },
+  getActivEvents: async (req, res) => {
+    // console.log(req.params.id)
+    const db = await req.app.get('db')
+    db.get_events_by_activ(req.params.id)
+    .then(result => {
+      // console.log(result)
+      res.status(200).send(result)
+    })
+    .catch(err => res.status(417).send({message: 'Unable to get events.', err}))
+  },
+  addEvent: async (req, res) => {
+    const {eventDate, title, img, content, street, city, state, zip, activId} = req.body
+    const db = await req.app.get('db')
+    const events = await db.create_event(
+      title,
+      img,
+      content,
+      eventDate,
+      req.session.user.userId,
+      street,
+      city,
+      state,
+      zip,
+      activId
+    )
+    if (events[0]) {
+    res.status(201).send({ message: 'Event Created.', data: events})
+    }else {
+      res.status(417).send({message: 'Can not return events.'})
+    }
+  },
+  addFriend: async (req, res) => {
+    const db = await req.app.get('db')
+    db.add_friend(req.params.id, req.session.user.userId, false, req.params.id)
+    .then(() => res.status(200).send({message: 'Request Sent'}))
+  },
+  getFriendRequests: async (req, res) => {
+    const db = await req.app.get('db')
+    const requests = await db.get_requests(+req.params.id)
+    res.status(200).send(requests)
+  },
+  confirmFriend: async (req, res) => {
+    const db = await req.app.get('db')
+    db.confirm_friend(req.params.id, req.session.user.userId)
+    .then(() => res.status(200).send({message: 'Connection Confirmed'}))
+  },
+  updateUser: async (req, res) => {
+    const { firstName, lastName, email, city, state, zip, userId } = req.body
+    const db = await req.app.get('db')
+    db.update_user_info( firstName, lastName, email, city, state, zip, userId )
   }
+  
 }

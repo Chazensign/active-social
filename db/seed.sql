@@ -36,7 +36,8 @@ drop table user_address;
 create table about(
 about_id serial PRIMARY KEY,
 user_id INTEGER REFERENCES users(id),
-about_content text
+about_content text,
+birth_date DATE
 );
 --added birth date into about table
 alter table about
@@ -84,6 +85,9 @@ img text,
 content text,
 date TIMESTAMP,
 user_id INTEGER REFERENCES users(id),
+street varchar(100),
+city varchar(50),
+state varchar(2),
 event_zip INTEGER,
 activ_id INTEGER REFERENCES activities(activ_id)
 );
@@ -118,8 +122,11 @@ values(1, 11, 'I love this sport it is all I ever think about.', 7, true, 30-100
 
 --Friend connections table
 create table friends(
+friend_id serial primary key,
 first_id INTEGER REFERENCES users(id),
-second_id INTEGER REFERENCES users(id)
+second_id INTEGER REFERENCES users(id),
+request_to integer references users(id),
+confirmed boolean
 );
 --Friends dummy data
 insert into friends(first_id, second_id)
@@ -155,3 +162,10 @@ room_id integer references socket_rooms(room_id),
 user_id integer references users(id),
 message varchar(100)
 )
+
+create table private_chat
+(private_id serial PRIMARY key,
+room_id integer REFERENCES socket_rooms(room_id),
+user_id1 integer REFERENCES users(id),
+user_id2 integer REFERENCES users(id)
+);

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import io from 'socket.io-client'
-import { connect } from 'react-redux'
+import {connect } from 'react-redux'
 import styled from 'styled-components'
 
 class Chat extends Component {
@@ -9,12 +9,13 @@ class Chat extends Component {
     this.state = {
       input: '',
       messages: [],
-      room: '',
       roomId: 0,
       userId: 0,
       userId2: 0,
       userName: '',
       userName2: '',
+      activId: 0,
+      activName: '',
       joined: false
     }
   }
@@ -30,7 +31,8 @@ class Chat extends Component {
     this.setState({
       userName: this.props.userName,
       userName2: this.props.userName2,
-      activity: this.props.activity,
+      activName: this.props.activName,
+      activId: this.props.activity,
       userId: this.props.userId,
       userId2: this.props.userId2
     },() => this.joinRoom())
@@ -38,15 +40,27 @@ class Chat extends Component {
   }
 
   componentWillUnmount() {
+    
     this.socket.disconnect()
+    this.setState({
+      input: '',
+      messages: [],
+      roomId: 0,
+      userId: 0,
+      userId2: 0,
+      userName: '',
+      userName2: '',
+      activId: 0,
+      activName: '',
+      joined: false
+    })
   }
 
   sendMessage = () => {
     this.socket.emit('message sent', {
       message: this.state.input,
       roomId: this.state.roomId,
-      userId: this.state.userId,
-      room: this.state.room
+      userId: this.state.userId
     })
     this.setState({
       input: ''
@@ -59,43 +73,27 @@ class Chat extends Component {
     })
   }
 
-  joinRoom = async () => {
-
-    let asignRoomName = () => {
-      if (this.state.activity) {
-        return this.state.activity
-      } else if (this.state.userName2) {
-        return {
-          room1: `${this.state.userName} and ${this.state.userName2}`,
-          room2: `${this.state.userName2} and ${this.state.userName}`
-        }
-      } else if (this.state.userName) {
-        return this.state.userName
-      } else {
-        console.log('returning null')
-        return null
-      }
-    }
-    let roomName = await asignRoomName()
-    if (roomName) {
+  joinRoom = () => {
       this.socket.emit('join room', {
-        room: roomName
+        userId: this.state.userId,
+        userId2: this.state.userId2,
+        activId:this.state.activId,
       })
-    }
   }
   joinSuccess = data => {
     this.setState({
       roomId: data.roomId,
-      room: data.room,
       joined: true,
       messages: data.messages
     })
   }
   render() {
+
     return (
       <ChatBox background={this.props.privateChat} >
-        {this.state.joined ? <h1>{this.state.room}</h1> : null}
         <div className='messages-cont'>
+        {this.state.userName2 ? <h2>{this.state.userName} and {this.state.userName2}'s Chat</h2> : (this.props.userName && <h2>{this.props.userName}'s Public Chat</h2>)}
+    {this.state.activName && <h2>Public{this.state.activName} Chat</h2>}
           {this.state.messages.map(messageObj => (
             <div 
               className={ this.state.userId === messageObj.user_id ? 'user-message message': 'others-message message'} 
@@ -103,9 +101,10 @@ class Chat extends Component {
               <p >{messageObj.message}</p>
             </div>
           ))}
-        </div>
-          <div>
+        <div className='input-send' >
             <input
+            className='chat-input'
+              maxLength='100'
               value={this.state.input}
               onChange={e => {
                 this.setState({
@@ -115,16 +114,17 @@ class Chat extends Component {
             />
             <button onClick={this.sendMessage}>Send</button>
           </div>
+        </div>  
       </ChatBox>
     )
   }
 }
-
 function mapStateToProps(reduxState) {
   return {
     profilePic: reduxState.profilePic,
     firstName: reduxState.firstName,
-    userId: reduxState.userId
+    lastName: reduxState.lastName,
+    userId: reduxState.userId,
   }
 }
 
@@ -134,48 +134,95 @@ export default connect(mapStateToProps)(Chat)
 
 
 const ChatBox = styled.div`
-  margin: 0 20px 0 20px;
+  position: relative;
+  margin: 10px;
   height: 450px;
+  width: 300px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 
+  h2 {
+    position: absolute;
+    top: 0;
+    box-sizing: border-box;
+    width: 100%;
+    border: inset 3px solid transparent;
+    margin: 0;
+    padding: 5px;
+    background: #63b8ee;
+    border-radius: 6px;
+    font-size: 2vw;
+  }
   .messages-cont {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     justify-content: flex-end;
     box-sizing: border-box;
-    height: 400px;
-    width: 250px;
+    height: 450px;
+    width: 300px;
     background: ${props => (props.background ? 'red' : 'white')};
     box-shadow: inset 0px 0px 4px 1px #000000;
-    border-radius: 3px;
+    border-radius: 6px;
     overflow: scroll;
     padding-bottom: 70px;
   }
   .message {
     box-sizing: border-box;
     max-width: 175px;
-    padding: 2px 7px 2px 7px;
+    padding: 4px 8px 4px 8px;
     margin: 5px;
     border-radius: 10px;
     font-size: 14px;
-    box-shadow: inset 0px 0px 5px 0px rgba(0, 0, 0, 0.8);
   }
   .user-message {
-    background: #04ff00;
+    background: #bee2f9;
+    color: #14396a;
     align-self: flex-end;
   }
   .others-message {
-    background: #0073ff;
+    background: #b8b8b8;
     align-self: flex-start;
     color: white;
   }
   .message p {
     padding: 0;
     margin: 0;
+  }
+  .input-send {
+    position: absolute;
+    bottom: 0;
+  }
+  .input-send button {
+    box-shadow: inset 0px 1px 0px 0px #bee2f9;
+    background: linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+    background-color: #63b8ee;
+    border-radius: 6px;
+    border: 1px solid #3866a3;
+    display: inline-block;
+    cursor: pointer;
+    color: #14396a;
+    font-family: Arial;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 6px 24px;
+    text-decoration: none;
+    text-shadow: 0px 1px 0px #7cacde;
+  }
+  .input-send button:hover {
+    background: linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+    background-color: #468ccf;
+  }
+  .chat-input {
+    background: transparent;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 16px;
+    width: 207px;
+    border: none;
+    border-top: 1px solid grey;
   }
 `
 

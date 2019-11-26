@@ -1,4 +1,3 @@
-select profile_img, room_name, user_id, message_id, message from socket_messages as sm
-join socket_rooms as sr on sr.room_id = sm.room_id
+select user_id, message, message_id, profile_img, first_Name from socket_messages as sm
 join users on sm.user_id = users.id
-where sr.room_name = ${room};
+where sm.room_id = $1;

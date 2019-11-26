@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { setUser } from '../ducks/reducer'
 import { withRouter } from 'react-router-dom'
-import './Header.css'
+import styled from 'styled-components'
 
 class Header extends Component {
   constructor(props) {
@@ -14,21 +14,22 @@ class Header extends Component {
       email: '',
       password: '',
       display: false,
-      loginDisp: false
+      loginDisp: false,
+      hidden: true
     }
   }
   handleChange = trg => {
     this.setState({ [trg.name]: trg.value })
   }
 
-  login = () => {
+  submitLogin = () => {
     axios
       .post('/auth/login', {
         email: this.state.email,
         password: this.state.password
       })
       .then(res => {
-        this.showLogin()
+        this.setState({ hidden: true });
         this.props.setUser(res.data.user)
         this.props.history.push(`/user/${this.props.userId}`)
         alert(res.data.message)
@@ -38,50 +39,77 @@ class Header extends Component {
       })
   }
 
-  showLogin = () => {
-    this.setState({ loginDisp: !this.state.loginDisp });
-  }
   toUserProfile = () => {
     this.props.history.push(`/user/${this.props.userId}`)
   }
 
+  closeLogin = event => {
+   let location = document.getElementsByClassName('show-login')
+   location = location[0]
+    if (event.target === location || event.target === 'go') {
+      this.login.classList.remove('hide-login')
+      this.login.classList.add('return-login')
+      setTimeout(() => {
+        this.setState({ hidden: true, loginDisp: false }, () => {
+          document.removeEventListener('click', this.closeLogin)
+        })
+      }, 400)
+    }
+  }
+
+  showLogin = () => {
+    this.setState({ loginDisp: !this.state.loginDisp })
+    this.login.classList.remove('hide-login')
+    this.login.classList.add('show-login')
+    this.setState({ hidden: false }, () => {
+      document.addEventListener('click', this.closeLogin)
+    })
+  }
+  assignLogin =(element) => {
+    this.login = element
+  }
+
+
   render() {
+     
     return (
-      <>
+      <FunctionalHeader>
         <header>
           <Link to='/'>
             <h1>Logo/Title</h1>
           </Link>
-          <nav>
-            {!this.state.loginDisp ? (
-              <div className='log-cancel' onClick={this.showLogin}>
+
+          {!this.state.loginDisp && !this.props.firstName ? (
+            <nav>
+              <div onClick={this.showLogin}>
                 Login
               </div>
-            ) : (
-              <div className='log-cancel' onClick={this.showLogin}>
-                Cancel
-              </div>
-            )}
-            <Link to='/wizard/step1'>Register</Link>
-          </nav>
-          <div>
-            <img
-              hidden={!this.props.profilePic}
-              src={this.props.profilePic}
-              alt='profile'
-            />
-            <div onClick={this.toUserProfile}>{this.props.firstName}</div>
-          </div>
+              <Link to='/wizard/step1'>Register</Link>
+            </nav>
+          ) : (
+            <div>
+              <img
+                hidden={!this.props.profilePic}
+                src={this.props.profilePic}
+                alt='profile'
+              />
+              <div onClick={this.toUserProfile}>{this.props.firstName}</div>
+            </div>
+          )}
         </header>
-        {this.state.loginDisp ? (
+        <div
+          
+          >
           <Login
-            login={this.login}
+            assignLogin={this.assignLogin}
+            hidden={this.state.hidden}
+            login={this.submitLogin}
             email={this.state.email}
             password={this.state.password}
             handleChange={this.handleChange}
           />
-        ) : null}
-      </>
+        </div>
+      </FunctionalHeader>
     )
   }
 }
@@ -95,3 +123,34 @@ function mapStateToProps(reduxState) {
 }
 
 export default withRouter(connect(mapStateToProps, {setUser})(Header))
+
+const FunctionalHeader = styled.div`
+
+
+
+  header {
+    box-sizing: border-box;
+    width: 100vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1a1f16;
+    color: white;
+    padding: 0 50px 0 50px;
+    position: fixed;
+    top: 0px;
+    z-index: 2;
+  }
+  header a {
+    text-decoration: none;
+    color: white;
+  }
+  header nav {
+    display: flex;
+    justify-content: space-between;
+    width: 150px;
+  }
+  .login:hover {
+    cursor: pointer;
+  }
+`

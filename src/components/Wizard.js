@@ -28,6 +28,21 @@ class Wizard extends Component {
   }
 
   componentDidMount = () => {
+    if (this.props.userId) {
+      axios.get(`/api/member/${this.props.userId}`)
+      .then(res => {
+        console.log(res)
+        this.setState({ 
+          email: res.data.email,
+          firstName: res.data.first_name,
+          lastName: res.data.last_name,
+          birthDate: res.data.birth_date,
+          city: res.data.city,
+          state: res.data.state,
+          zip: res.data.zip
+         });
+      })
+    }
     axios.get('/api/activities').then(res => {
       this.setState({ activities: res.data })
     })
@@ -41,10 +56,11 @@ class Wizard extends Component {
     if (this.state.password !== this.state.password2) {
       return alert('Passwords do not match.')
     }
-    await axios.post('/auth/register', this.state).then(async res => {
+    await axios.post('/auth/register', this.state)
+    .then(res => {
       alert(res.data.message)
-      await this.props.setUser(res.data.user)
-    })
+      this.props.setUser(res.data.user)
+    
     this.setState({
       email: '',
       password: '',
@@ -58,6 +74,8 @@ class Wizard extends Component {
       activities: [],
       userActivs: []
     })
+    })
+    .catch(err => alert(err))
     this.props.history.push(`/user/${this.props.userId}`)
   }
 
@@ -84,16 +102,22 @@ class Wizard extends Component {
       userActivs:  [...activeArr]
     })
   }
+  updateProfile = () => {
+    
+  }
 
   render() {
-  
+    console.log(this.props)
+    
     return (
-      <WizardBack>
+      <>
         <Switch>
           <Route
-            path='/wizard/step1'
+            path='/wizard/step1/:userId'
             render={() => (
               <Step1
+                updateProfile={this.updateProfile}
+                edit={true}
                 {...this.props}
                 handleChange={this.handleChange}
                 userInfo={this.state}
@@ -101,28 +125,62 @@ class Wizard extends Component {
             )}
           />
           <Route
-            path='/wizard/step2'
+            path='/wizard/step2/:userId'
             render={() => (
               <Step2
-                {...this.props}
+                history={this.props.history}
                 activities={this.state.activities}
                 addActivity={this.addActivity}
               />
             )}
           />
-          <Route
-            path='/wizard/step3'
-            render={() => (
-              <Step3
-              {...this.props}
-                createUser={this.createUser}
-                userActivs={this.state.userActivs}
-                updateUserActivs={this.updateUserActivs}
-              />
-            )}
-          />
+          <WizardBack>
+            <Route
+              path='/wizard/step1'
+              render={() => (
+                <Step1
+                  {...this.props}
+                  handleChange={this.handleChange}
+                  userInfo={this.state}
+                />
+              )}
+            />
+
+            <Route
+              path='/wizard/step2'
+              render={() => (
+                <Step2
+                  history={this.props.history}
+                  activities={this.state.activities}
+                  addActivity={this.addActivity}
+                />
+              )}
+            />
+            <Route
+              path='/wizard/step2/:userId'
+              render={() => (
+                <Step2
+                  edit={this.props}
+                  {...this.props}
+                  activities={this.state.activities}
+                  addActivity={this.addActivity}
+                />
+              )}
+            />
+            <Route
+              path='/wizard/step3'
+              render={() => (
+                <Step3
+                  {...this.props}
+                  createUser={this.createUser}
+                  userActivs={this.state.userActivs}
+                  updateUserActivs={this.updateUserActivs}
+                />
+              )}
+            />
+          </WizardBack>
         </Switch>
-      </WizardBack>
+      </>
     )
   }
 }
@@ -138,11 +196,14 @@ function mapStateToProps(reduxState) {
 export default connect(mapStateToProps, {setUser})(Wizard)
 
 const WizardBack = styled.div`
+  position: relative;
+  background: rgba(0, 83, 166, 0.6);
   width: 100vw;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  margin-top: 120px;
+  z-index: 2;
+  /* margin-top: 80px; */
   /* align-items: center;
   justify-content: center; */
 `

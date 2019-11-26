@@ -8,21 +8,12 @@ const ctrl = require('./controllers/Controller')
 const session = require('express-session')
 socket = require('socket.io')
 
-var io = socket(
-app.listen(SERVER_PORT, () => {
-  console.log(`Self destruct in ${SERVER_PORT}`)
-}))
-
 app.use(express.json())
 
 massive(CONNECTION_STRING).then(databaseConnection => {
-    app.set('db', databaseConnection)
-    console.log('Database Connected')
-  })
-
-app.get('/chat', function(req, res) {
-  res.sendFile(__dirname + Chat)
-})
+  app.set('db', databaseConnection)
+  console.log('Database Connected')
+}) 
 
 app.use(
   session({
@@ -32,98 +23,95 @@ app.use(
   })
 )
 
+
+
+var io = socket(
+  app.listen(SERVER_PORT, () => {
+    console.log(`Self destruct in ${SERVER_PORT}`)
+  })
+)
+
+app.get('/chat', function(req, res) {
+  res.sendFile(__dirname + Chat)
+})
+
 app.post('/auth/register', authCtrl.register)
 app.post('/auth/login', authCtrl.login)
 app.delete('/auth/logout', authCtrl.logOut)
 app.post('/auth/session', authCtrl.getSession)
+app.put('/api/user/update', ctrl.updateUser)
 app.get('/api/search', ctrl.findUsers)
 app.get('/api/activities/:userId', ctrl.getUsersActiv)
 app.get('/api/activities', ctrl.getActivities)
+app.post('/api/friends/:id', ctrl.addFriend)
 app.get('/api/friends/:id', ctrl.getUsersFriends)
+app.get('/api/friend/requests/:id', ctrl.getFriendRequests)
+app.put('/api/friend/request/:id', ctrl.confirmFriend)
 app.get('/api/events/:userId', ctrl.getUsersEvents)
+app.get('/api/activity/events/:id', ctrl.getActivEvents)
+app.post('/api/events', ctrl.addEvent)
 app.get('/api/member/:id', ctrl.getMemeberInfo)
 app.get('/api/activity/:id', ctrl.activityPageInfo)
 app.get('/chat', function(req, res) {
-  res.status(200).send("hello")
+  res.status(200).send('hello')
 })
 
-io.on('connection', (socket) => {
+io.on('connection', async socket => {
   console.log('User connected')
-
-  // socket.on('join room', async data => {
-  //   let existingRoom 
-  //   const { room } = data
-  //   const db = app.get('db')
-  //   if (typeof room === 'object') {
-  //     const { room1, room2 } = room
-  //     existingRoom = await db.check_for_two_rooms(room1, room2)
-  //     !existingRoom.length
-  //     ? existingRoom = await db.create_room({ room: room1 })
-  //     : (existingRoom = existingRoom[0].room_name)
-  //     console.log('Room joined', existingRoom)
-  //     console.log(existingRoom)
-  //   }else {
-  //   console.log('Room joined', room, 'else')
-  //   existingRoom = await db.check_room({ room: room })
-  //   console.log(existingRoom)
-  //   !existingRoom.length
-  //     ? await db.create_room({ room: room })
-  //     : (existingRoom = room)
-  //   }
-    
-  //   let messages = await db.fetch_message_history({ room: existingRoom })
-  //   let roomsId = await db.get_room_id(existingRoom)
-  //   roomsId = roomsId[0]
-  //   socket.join(existingRoom)
-  //   io.to(existingRoom).emit('room joined', {
-  //     room: existingRoom,
-  //     messages: messages,
-  //     roomId: roomsId.room_id
-  //   })
-  // })
-
   socket.on('join room', async data => {
-
+    
+    const db = await app.get('db')
     let existingRoom
+    let roomId
     const { userId, userId2, activId } = data
-    const db = app.get('db')
-    if (userID && userId2) {
-      existingRoom = await db.check_for_two_rooms(userId, userId2)
-      !existingRoom.length
-        ? (existingRoom = await db.create_room({ room: room1 }))
-        : (existingRoom = existingRoom[0].room_name)
-      console.log('Room joined', existingRoom)
-      console.log(existingRoom)
-    } else {
-      console.log('Room joined', room, 'else')
-      existingRoom = await db.check_room({ room: room })
-      console.log(existingRoom)
-      !existingRoom.length
-        ? await db.create_room({ room: room })
-        : (existingRoom = room)
+    try {
+    roomIdNum = async () => {
+      if (activId) {
+        existingRoom = await db.check_for_activ_room(activId)
+        !existingRoom.length
+          ? (existingRoom = await db.create_activ_room(activId))
+          : null
+        roomId = existingRoom[0].room_id
+        console.log('Activity Room Joined', roomId)
+        return roomId
+      } else if (userId && userId2) {
+        existingRoom = await db.check_for_private_room(userId, userId2)
+        !existingRoom.length
+          ? (existingRoom = await db.create_private_room(userId, userId2))
+          : null
+        roomId = existingRoom[0].room_id
+        console.log('Private Room joined', roomId)
+        return roomId
+      } else if (userId) {
+        existingRoom = await db.check_for_user_room(userId)
+        !existingRoom.length
+          ? (existingRoom = await db.create_user_page_room(userId))
+          : null
+        roomId = existingRoom[0].room_id
+        console.log('User Page Room joined', roomId)
+        return roomId
+      }
     }
-
-    let messages = await db.fetch_message_history({ room: existingRoom })
-    let roomsId = await db.get_room_id(existingRoom)
-    roomsId = roomsId[0]
-    socket.join(existingRoom)
-    io.to(existingRoom).emit('room joined', {
-      room: existingRoom,
+  } catch (err) {
+    console.log(err)
+  }
+    roomId = await roomIdNum()
+    let messages = await db.fetch_message_history(roomId)
+    socket.join(roomId)
+    io.to(roomId).emit('room joined', {
       messages: messages,
-      roomId: roomsId.room_id
+      roomId: roomId
     })
   })
   socket.on('message sent', async data => {
-    
-    const { room, roomId, userId, message } = data
+    const { roomId, userId, message } = data
     const db = app.get('db')
     await db.create_message(roomId, userId, message)
-    let messages = await db.fetch_message_history({ room: room })
-    io.to(data.room).emit('message dispatched', messages)
+    let messages = await db.fetch_message_history(roomId)
+    io.to(roomId).emit('message dispatched', messages)
   })
 
   socket.on('disconnect', () => {
     console.log('User Disconnected')
   })
 })
-      

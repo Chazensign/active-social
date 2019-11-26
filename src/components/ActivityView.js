@@ -3,6 +3,9 @@ import axios from 'axios'
 import Chat from './Chat'
 import FriendList from './FriendList'
 import EventList from './EventList'
+import styled from 'styled-components'
+import soccerBall from '../assets/Soccerball.svg.png'
+
 
 class ActivityView extends Component {
   constructor(props) {
@@ -15,35 +18,65 @@ class ActivityView extends Component {
     }
   }
 
-componentDidMount = () => {
-  console.log(this.props)
-  axios.get(`/api/activity/${this.props.match.params.activ_id}`)
-  .then(res => {
-    console.log(res.data);
-    
-    this.setState({ 
-      instructors: res.data.instructors,
-      userNames: res.data.users,
-      activity: res.data.activ,
-      events: res.data.events
-    })
-    console.log('activityview')
-  })
-}
+  componentDidMount = () => {
+    if (this.props.match.params.activ_id) {
+      axios
+        .get(`/api/activity/${this.props.match.params.activ_id}`)
+        .then(res => {
+          this.setState({
+            instructors: res.data.instructors,
+            userNames: res.data.users,
+            activity: res.data.activ,
+            events: res.data.events
+          })
+        })
+    }
+  }
 
   render() {
-    console.log(this.state);
-    
+     console.log(this.props)
+     
     return (
-      <div>
-        Activity
-        {this.state.activity.activ_title && <Chat activity={this.state.activity.activ_title} />}
-        <FriendList userNames={this.state.userNames} />
-        <FriendList userNames={this.state.instructors} />
-        <EventList />
-      </div>
+      <ActivityPage>
+        <img src={require(`${this.state.activity.img}`)} alt='' />
+        <h1>{this.state.activity.activ_title}</h1>
+        {this.state.activity.activ_title && (
+          <Chat
+            activName={this.state.activity.active_title}
+            activity={this.state.activity.activ_id}
+          />
+        )}
+        {this.state.userNames[0] ? (
+          <FriendList
+            {...this.props}
+            title='Users'
+            userNames={this.state.userNames}
+          />
+        ) : null}
+        {this.state.instructors[0] ? (
+          <FriendList
+            {...this.props}
+            title='Instructors'
+            userNames={this.state.instructors}
+          />
+        ) : null}
+        <EventList activId={this.props.match.params.activ_id} />
+      </ActivityPage>
     )
   }
 }
 
 export default ActivityView
+
+const ActivityPage = styled.div`
+  margin-top: 80px;
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  background: grey;
+
+  h1 {
+    width: 100vw;
+  }
+`
