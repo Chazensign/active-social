@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Switch, Route} from 'react-router'
+import React, { Component } from 'react'
+import { Switch, Route } from 'react-router'
 import { connect } from 'react-redux'
 import { setUser } from '../ducks/reducer'
 import Step1 from './Step1'
@@ -7,7 +7,6 @@ import Step2 from './Step2'
 import Step3 from './Step3'
 import axios from 'axios'
 import styled from 'styled-components'
-
 
 class Wizard extends Component {
   constructor(props) {
@@ -29,10 +28,8 @@ class Wizard extends Component {
 
   componentDidMount = () => {
     if (this.props.userId) {
-      axios.get(`/api/member/${this.props.userId}`)
-      .then(res => {
-        console.log(res)
-        this.setState({ 
+      axios.get(`/api/member/${this.props.userId}`).then(res => {
+        this.setState({
           email: res.data.email,
           firstName: res.data.first_name,
           lastName: res.data.last_name,
@@ -40,7 +37,7 @@ class Wizard extends Component {
           city: res.data.city,
           state: res.data.state,
           zip: res.data.zip
-         });
+        })
       })
     }
     axios.get('/api/activities').then(res => {
@@ -56,38 +53,39 @@ class Wizard extends Component {
     if (this.state.password !== this.state.password2) {
       return alert('Passwords do not match.')
     }
-    await axios.post('/auth/register', this.state)
-    .then(res => {
-      alert(res.data.message)
-      this.props.setUser(res.data.user)
-    
-    this.setState({
-      email: '',
-      password: '',
-      password2: '',
-      firstName: '',
-      lastName: '',
-      birthDate: '',
-      city: '',
-      state: '',
-      zip: 0,
-      activities: [],
-      userActivs: []
-    })
-    })
-    .catch(err => alert(err))
+    await axios
+      .post('/auth/register', this.state)
+      .then(res => {
+        alert(res.data.message)
+        this.props.setUser(res.data.user)
+
+        this.setState({
+          email: '',
+          password: '',
+          password2: '',
+          firstName: '',
+          lastName: '',
+          birthDate: '',
+          city: '',
+          state: '',
+          zip: 0,
+          activities: [],
+          userActivs: []
+        })
+      })
+      .catch(err => alert(err))
     this.props.history.push(`/user/${this.props.userId}`)
   }
 
   addActivity = allActivBoxes => {
-      let userActs = []
-      for (var i = 0; i < allActivBoxes.length; i++) {
-        if (allActivBoxes[i].checked) {
-          userActs.push({
-            activId: allActivBoxes[i].value,
-            activTitle: allActivBoxes[i].id,
-            lessons: false
-          })
+    let userActs = []
+    for (var i = 0; i < allActivBoxes.length; i++) {
+      if (allActivBoxes[i].checked) {
+        userActs.push({
+          activId: allActivBoxes[i].value,
+          activTitle: allActivBoxes[i].id,
+          lessons: false
+        })
       }
       this.setState({ userActivs: userActs })
     }
@@ -95,20 +93,47 @@ class Wizard extends Component {
 
   updateUserActivs = (name, value, i) => {
     let activeArr = [...this.state.userActivs]
-    let activObj = {...this.state.userActivs[i]}
-    activObj = {...activObj, [name]: value}
+    let activObj = { ...this.state.userActivs[i] }
+    activObj = { ...activObj, [name]: value }
     activeArr[i] = activObj
     this.setState({
-      userActivs:  [...activeArr]
+      userActivs: [...activeArr]
     })
   }
-  updateProfile = () => {
-    
+  updateProfile = async () => {
+    console.log('hitting wiz fn')
+    const {
+      email,
+      password,
+      password2,
+      firstName,
+      lastName,
+      birthDate,
+      city,
+      state,
+      zip
+    } = this.state
+    await axios
+      .put('/api/user/update', {
+        email,
+        password,
+        password2,
+        firstName,
+        lastName,
+        birthDate,
+        city,
+        state,
+        zip,
+        userId: this.props.userId
+      })
+      .then(res => {
+        this.props.setUser(res.data.user)
+        alert(res.data.message)
+      })
+    this.props.history.push(`/user/${this.props.userId}`)
   }
 
   render() {
-    console.log(this.props)
-    
     return (
       <>
         <Switch>
@@ -184,7 +209,7 @@ class Wizard extends Component {
     )
   }
 }
- 
+
 function mapStateToProps(reduxState) {
   return {
     profilePic: reduxState.profilePic,
@@ -193,7 +218,7 @@ function mapStateToProps(reduxState) {
   }
 }
 
-export default connect(mapStateToProps, {setUser})(Wizard)
+export default connect(mapStateToProps, { setUser })(Wizard)
 
 const WizardBack = styled.div`
   position: relative;

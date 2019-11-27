@@ -40,7 +40,6 @@ class Chat extends Component {
   }
 
   componentWillUnmount() {
-    
     this.socket.disconnect()
     this.setState({
       input: '',
@@ -60,7 +59,7 @@ class Chat extends Component {
     this.socket.emit('message sent', {
       message: this.state.input,
       roomId: this.state.roomId,
-      userId: this.state.userId
+      userId: this.props.loggedInId
     })
     this.setState({
       input: ''
@@ -88,22 +87,33 @@ class Chat extends Component {
     })
   }
   render() {
-
+    
     return (
-      <ChatBox background={this.props.privateChat} >
-        <div className='messages-cont'>
-        {this.state.userName2 ? <h2>{this.state.userName} and {this.state.userName2}'s Chat</h2> : (this.props.userName && <h2>{this.props.userName}'s Public Chat</h2>)}
-    {this.state.activName && <h2>Public{this.state.activName} Chat</h2>}
-          {this.state.messages.map(messageObj => (
-            <div 
-              className={ this.state.userId === messageObj.user_id ? 'user-message message': 'others-message message'} 
-              key={messageObj.message_id} >
-              <p >{messageObj.message}</p>
-            </div>
-          ))}
-        <div className='input-send' >
+      <ChatBox background={this.props.privateChat}>
+          {this.state.userName2 ? (
+            <h2>
+              {this.state.userName} and {this.state.userName2}'s Chat
+            </h2>
+          ) : (
+            this.props.userName && <h2>{this.props.userName}'s Public Chat</h2>
+          )}
+          {this.state.activName && <h2>Public {this.state.activName} Chat</h2>}
+          {this.state.messages.map(messageObj => {
+              return (
+              <div
+                className={
+                  +this.props.loggedInId === +messageObj.user_id
+                    ? 'user-message message'
+                    : 'others-message message'
+                }
+                key={messageObj.message_id}>
+                <p>{messageObj.message}</p>
+              </div>
+            )}
+          )}
+          <div className='input-send'>
             <input
-            className='chat-input'
+              className='chat-input'
               maxLength='100'
               value={this.state.input}
               onChange={e => {
@@ -114,17 +124,13 @@ class Chat extends Component {
             />
             <button onClick={this.sendMessage}>Send</button>
           </div>
-        </div>  
       </ChatBox>
     )
   }
 }
 function mapStateToProps(reduxState) {
   return {
-    profilePic: reduxState.profilePic,
-    firstName: reduxState.firstName,
-    lastName: reduxState.lastName,
-    userId: reduxState.userId,
+    loggedInId: reduxState.userId,
   }
 }
 
@@ -134,6 +140,7 @@ export default connect(mapStateToProps)(Chat)
 
 
 const ChatBox = styled.div`
+  box-sizing: border-box;
   position: relative;
   margin: 10px;
   height: 450px;
@@ -142,20 +149,26 @@ const ChatBox = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background: white;
+  box-shadow: inset 0px 0px 4px 1px #000000;
+  border-radius: 6px;
+  overflow: scroll;
+  padding-bottom: 70px;
 
   h2 {
     position: absolute;
     top: 0;
     box-sizing: border-box;
-    width: 100%;
-    border: inset 3px solid transparent;
-    margin: 0;
+    width: 296px;
+    margin: 2px 0 0 0;
     padding: 5px;
     background: #63b8ee;
-    border-radius: 6px;
+    color: #14396a;
+    border-radius: 4px;
     font-size: 2vw;
+    box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
   }
-  .messages-cont {
+  /* .messages-cont {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -167,7 +180,7 @@ const ChatBox = styled.div`
     box-shadow: inset 0px 0px 4px 1px #000000;
     border-radius: 6px;
     overflow: scroll;
-    padding-bottom: 70px;
+    padding-bottom: 70px; */
   }
   .message {
     box-sizing: border-box;

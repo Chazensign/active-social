@@ -139,9 +139,24 @@ module.exports = {
     .then(() => res.status(200).send({message: 'Connection Confirmed'}))
   },
   updateUser: async (req, res) => {
+    console.log(req.body)
     const { firstName, lastName, email, city, state, zip, userId } = req.body
     const db = await req.app.get('db')
     db.update_user_info( firstName, lastName, email, city, state, zip, userId )
+    .then((result) => {
+      const { first_name, last_name, profile_img, user_id, city, state, zip } = result[0]
+      const user = {
+        firstName: first_name,
+        lastName: last_name,
+        profilePic: profile_img,
+        userId: user_id,
+        city: city,
+        state: state,
+        zip: zip
+      }
+      req.session.user = user
+      res.status(202).send({message: 'Profile Updated', user: user})})
+    .catch(err => console.log(err))
   }
   
 }

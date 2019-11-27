@@ -1,4 +1,4 @@
-insert into chat_rooms (avtiv_id, user_id1, user_id2)
+insert into chat_rooms (activ_id, user_id1, user_id2)
 values (null, $1, null);
 
 select room_id from chat_rooms

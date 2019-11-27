@@ -26,8 +26,9 @@ class ActivitiesList extends Component {
       <ActivitiesContainer>
         <h2>Activities</h2>
         
-        <Link to={`/wizard/step2/${this.props.userId}`}><button className='add-activity' hidden={this.props.addActiv} >Add Activities</button></Link>
+        {this.props.addActiv && <Link to={`/wizard/step2/${this.props.userId}`}><button className='add-activity' >Add Activities</button></Link>}
         {this.state.userActivities.map(activ => {
+          
           return (
             <Link key={activ.activ_id} to={`/activity/${activ.activ_id}`}>
               <div className='act-list-item'>
@@ -53,21 +54,29 @@ const ActivitiesContainer = styled.div`
   background: white;
   box-shadow: inset 0px 0px 4px 1px #000000;
   border-radius: 6px;
-  
+
   h2 {
     box-sizing: border-box;
-    border: inset 3px solid transparent;
-    margin: 0;
+    width: 296px;
+    margin: 2px 0 0 2px;
     padding: 5px;
     background: #63b8ee;
-    border-radius: 6px;
+    color: #14396a;
+    border-radius: 4px;
+    box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
+  }
+  h3 {
+    margin: 0;
   }
 
   .activ-img {
-    width: 100px;
+    width: 30px;
+    height: 30px;
+    padding: 5px 10px 5px 10px;
   }
   .act-list-item {
     display: flex;
+    align-items: center;
     margin: 5px;
   }
   .add-activity {

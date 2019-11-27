@@ -48,7 +48,6 @@ class Member extends Component {
   }
   componentDidUpdate = () => {
     axios.post('/auth/session').then(res => {
-      console.log(res)
       this.props.setUser(res.data.user)
     })
   }
@@ -59,10 +58,23 @@ class Member extends Component {
         <h2 className='user-name'>
           {this.state.firstName} {this.state.lastName}
         </h2>
-        {this.state.firstName && <Chat userName={this.state.firstName} />}
-        <ActivitiesList userId={this.props.match.params.user_id} />
+        {this.state.firstName && (
+          <Chat
+            userId={this.props.match.params.user_id}
+            userName={this.state.firstName}
+          />
+        )}
+        <ActivitiesList
+          addActiv={false}
+          userId={this.props.match.params.user_id}
+        />
         <EventList userId={this.props.match.params.user_id} />
-        <FriendList title={'Friends'} showChat={false} {...this.props} userId={this.props.match.params.user_id} />
+        <FriendList
+          title={'Friends'}
+          showChat={false}
+          {...this.props}
+          userId={this.props.match.params.user_id}
+        />
       </MemberPage>
     )
   }

@@ -96,11 +96,13 @@ const FriendContainer = styled.div`
   margin: 10px;
   h2 {
     box-sizing: border-box;
-    border: inset 3px solid transparent;
-    margin: 0;
+    width: 296px;
+    margin: 2px 0 0 2px;
     padding: 5px;
     background: #63b8ee;
-    border-radius: 6px;
+    color: #14396a;
+    border-radius: 4px;
+    box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
   }
   .contact-cont h3 {
     margin: 0;

@@ -3,8 +3,6 @@ import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 const Step1 = props => {
-  console.log(props)
-
   const {
     email,
     password,
@@ -112,6 +110,7 @@ const Step1 = props => {
             </>
           ) : (
             <button
+              type="button"
               className='save-button'
               onClick={() => props.updateProfile()}>
               Save

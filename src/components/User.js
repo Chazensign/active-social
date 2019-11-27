@@ -1,34 +1,40 @@
-import React, {Component} from 'react';
-import axios from 'axios';
+import React, { Component } from 'react'
+import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
-import Chat from './Chat';
-import FriendList from './FriendList';
-import EventList from './EventList';
-import ActivitiesList from './ActivitiesList';
-import ChatModal from './ChatModal';
-import {setUser} from '../ducks/reducer'
+import Chat from './Chat'
+import FriendList from './FriendList'
+import EventList from './EventList'
+import ActivitiesList from './ActivitiesList'
+import ChatModal from './ChatModal'
+import { setUser } from '../ducks/reducer'
 import UserSearch from './UserSearch'
 import styled from 'styled-components'
 
 class User extends Component {
   constructor(props) {
-    super(props);
-    this.state = { 
+    super(props)
+    this.state = {
       otherChatter: '',
       otherChatterId: 0,
       aboutContent: '',
-      privateChat: false,
-     }
+      privateChat: false
+    }
   }
 
-componentDidUpdate = () => {
-  axios.post('/auth/session')
-  .then(res => {
-    console.log(res)
-    this.props.setUser(res.data.user)
-  })
-  .catch(err => console.log(err))
+  componentWillMount = () => {
+    if (+this.props.match.params.user_id !== +this.props.loggedInId) {
+      this.props.history.push(`/member/${this.props.match.params.user_id}`)
+    }
+  }
+
+  componentDidUpdate = () => {
+    axios
+      .post('/auth/session')
+      .then(res => {
+        this.props.setUser(res.data.user)
+      })
+      .catch(err => console.log(err))
   }
   showPrivateChat = (id, name) => {
     this.setState({ privateChat: true, otherChatter: name, otherChatterId: id })
@@ -38,16 +44,18 @@ componentDidUpdate = () => {
     this.setState({ privateChat: false })
   }
 
-  render() { 
+  render() {
     return (
       <UserPage>
         <h1 className='username'>
           {this.props.firstName} {this.props.lastName}
         </h1>
-        <Link to={`/wizard/step1/${this.props.userId}`}><button className='update-button'>Update Profile</button></Link>
+        <Link to={`/wizard/step1/${this.props.loggedInId}`}>
+          <button className='update-button'>Update Profile</button>
+        </Link>
         <ChatModal
           hide={this.hidePrivateChat}
-          userId={this.props.userId}
+          userId={this.props.loggedInId}
           userName={this.props.firstName}
           userId2={this.state.otherChatterId}
           userName2={this.state.otherChatter}
@@ -58,40 +66,34 @@ componentDidUpdate = () => {
           {...this.props}
           title='Friends'
           showPrivateChat={this.showPrivateChat}
-          userId={this.props.userId}
+          userId={this.props.loggedInId}
         />
         <FriendList
           title='Pending Requests'
-          userId={this.props.userId}
+          userId={this.props.loggedInId}
           showPrivateChat={this.showPrivateChat}
           requests='true'
         />
         <UserSearch zip={this.props.zip} />
-        <ActivitiesList
-          addActiv={false}
-          userId={this.props.match.params.user_id}
-        />
-        <Chat
-          userId={this.props.match.params.user_id}
-          userName={this.props.firstName}
-        />
+        <ActivitiesList addActiv={true} userId={this.props.loggedInId} />
+        <Chat userId={this.props.loggedInId} userName={this.props.firstName} />
         <EventList userId={this.props.match.params.user_id} />
       </UserPage>
     )
   }
 }
- 
+
 function mapStateToProps(reduxState) {
   return {
     profilePic: reduxState.profilePic,
     firstName: reduxState.firstName,
     lastName: reduxState.lastName,
-    userId: reduxState.userId,
+    loggedInId: reduxState.userId,
     zip: reduxState.zip
   }
 }
 
-export default connect(mapStateToProps, {setUser})(User)
+export default connect(mapStateToProps, { setUser })(User)
 
 const UserPage = styled.div`
   display: flex;
@@ -106,7 +108,7 @@ const UserPage = styled.div`
     text-align: center;
     margin-top: 20px;
   }
-  
+
   .update-button {
     height: 31px;
     box-shadow: inset 0px 1px 0px 0px #bee2f9;

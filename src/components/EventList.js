@@ -36,7 +36,7 @@ class EventList extends Component {
   render() { 
     return (
       <OuterEvents>
-        <h2>Events</h2>
+        <h2 className='title' >Events</h2>
         <CreateEvent
           updateEvents={this.updateEvents}
           addEvent={this.state.addEvent}
@@ -67,6 +67,10 @@ class EventList extends Component {
 export default EventList;
 
 const OuterEvents = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 500px;
   height: 450px;
   margin: 10px;
@@ -76,19 +80,40 @@ const OuterEvents = styled.div`
   .event-li {
     display: flex;
   }
-  h2 {
+  .title {
     box-sizing: border-box;
-    border: inset 3px solid transparent;
-    margin: 0;
+    width: 496px;
+    margin: 2px 0 0 0;
     padding: 5px;
     background: #63b8ee;
-    border-radius: 6px;
+    color: #14396a;
+    border-radius: 4px;
+    box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
   }
   .event-li img {
-    width: 150px;
+    width: 100px;
+    height: auto;
   }
   .add-event {
     position: absolute;
     bottom: 10px;
+    box-shadow: inset 0px 1px 0px 0px #bee2f9;
+    background: linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+    background-color: #63b8ee;
+    border-radius: 6px;
+    border: 1px solid #3866a3;
+    display: inline-block;
+    cursor: pointer;
+    color: #14396a;
+    font-family: Arial;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 6px 24px;
+    text-decoration: none;
+    text-shadow: 0px 1px 0px #7cacde;
+  }
+  .add-event:hover {
+    background: linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+    background-color: #468ccf;
   }
 `

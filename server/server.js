@@ -6,7 +6,18 @@ const massive = require('massive')
 const authCtrl = require('./controllers/AuthController')
 const ctrl = require('./controllers/Controller')
 const session = require('express-session')
+const { DynamoDB } = require('@aws-sdk/client-dynamodb-v2-node')
 socket = require('socket.io')
+
+async function example() {
+  const client = new DynamoDB({ region: 'us-west-2' })
+  try {
+  const results = await client.listTables({})
+  console.log(results.TableNames.join('\n'))
+  } catch (err) {
+  console.error(err);
+}
+}
 
 app.use(express.json())
 

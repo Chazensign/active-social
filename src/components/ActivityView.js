@@ -4,8 +4,6 @@ import Chat from './Chat'
 import FriendList from './FriendList'
 import EventList from './EventList'
 import styled from 'styled-components'
-import soccerBall from '../assets/Soccerball.svg.png'
-
 
 class ActivityView extends Component {
   constructor(props) {
@@ -34,11 +32,9 @@ class ActivityView extends Component {
   }
 
   render() {
-     console.log(this.props)
-     
-    return (
+    if (this.state.activity) return (
       <ActivityPage>
-        <img src={require(`${this.state.activity.img}`)} alt='' />
+        {/* <img src={require(this.state.activity.img)} alt='' /> */}
         <h1>{this.state.activity.activ_title}</h1>
         {this.state.activity.activ_title && (
           <Chat
@@ -61,8 +57,7 @@ class ActivityView extends Component {
           />
         ) : null}
         <EventList activId={this.props.match.params.activ_id} />
-      </ActivityPage>
-    )
+      </ActivityPage>)
   }
 }
 

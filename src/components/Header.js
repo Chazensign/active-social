@@ -81,10 +81,11 @@ class Header extends Component {
 
           {!this.state.loginDisp && !this.props.firstName ? (
             <nav>
-              <div onClick={this.showLogin}>
+              <div className='login' onClick={this.showLogin}>
                 Login
               </div>
               <Link to='/wizard/step1'>Register</Link>
+              <Link>Explore</Link>
             </nav>
           ) : (
             <div>
@@ -125,32 +126,39 @@ function mapStateToProps(reduxState) {
 export default withRouter(connect(mapStateToProps, {setUser})(Header))
 
 const FunctionalHeader = styled.div`
-
-
-
   header {
     box-sizing: border-box;
     width: 100vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #1a1f16;
+    background: #161a1ff7;
     color: white;
-    padding: 0 50px 0 50px;
+    padding: 0 70px 0 70px;
     position: fixed;
     top: 0px;
     z-index: 2;
   }
+  header h1 {
+    margin-right: 200px;
+  }
   header a {
     text-decoration: none;
-    color: white;
+    color: #63b8ee;
   }
   header nav {
     display: flex;
     justify-content: space-between;
-    width: 150px;
+    color: #63b8ee;
+    width: 500px;
+    min-width: 230px;
   }
   .login:hover {
     cursor: pointer;
+  }
+  @media (min-width: 720px) {
+    nav {
+      display: none;
+    }
   }
 `

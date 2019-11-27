@@ -5,6 +5,7 @@ const initialState = {
   birthDate: '',
   profilePic: '',
   city: '',
+  state: '',
   zip: 0
 }
 

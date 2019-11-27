@@ -158,13 +158,13 @@ create table socket_rooms(
 --Socket messages table
 create table socket_messages(
 message_id serial primary key,
-room_id integer references socket_rooms(room_id),
+room_id integer references chat_rooms(room_id),
 user_id integer references users(id),
 message varchar(100)
 )
 
-create table private_chat
-(private_id serial PRIMARY key,
+create table chat_rooms
+(room_id serial PRIMARY key,
 room_id integer REFERENCES socket_rooms(room_id),
 user_id1 integer REFERENCES users(id),
 user_id2 integer REFERENCES users(id)
