@@ -8,7 +8,8 @@ const ChatModal = (props) => {
     <ChatBoxWrapper>
       <Chat 
       {...props}
-      /> <button onClick={props.hide} >Close</button>
+      hide={props.hide}
+      /> 
     </ChatBoxWrapper>
    )
 }

@@ -5,6 +5,7 @@ const app = express()
 const massive = require('massive')
 const authCtrl = require('./controllers/AuthController')
 const ctrl = require('./controllers/Controller')
+const awsCtrl = require('./AWSS3')
 const session = require('express-session')
 const { DynamoDB } = require('@aws-sdk/client-dynamodb-v2-node')
 socket = require('socket.io')
@@ -12,19 +13,26 @@ socket = require('socket.io')
 async function example() {
   const client = new DynamoDB({ region: 'us-west-2' })
   try {
-  const results = await client.listTables({})
-  console.log(results.TableNames.join('\n'))
+    const results = await client.listTables({})
+    console.log(results.TableNames.join('\n'))
   } catch (err) {
-  console.error(err);
+    console.error(err)
+  }
 }
-}
-
-app.use(express.json())
-
 massive(CONNECTION_STRING).then(databaseConnection => {
   app.set('db', databaseConnection)
   console.log('Database Connected')
-}) 
+})
+
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  )
+  next()
+})
+app.use(express.json())
 
 app.use(
   session({
@@ -34,14 +42,13 @@ app.use(
   })
 )
 
-
-
 var io = socket(
   app.listen(SERVER_PORT, () => {
     console.log(`Self destruct in ${SERVER_PORT}`)
   })
 )
-
+app.enable('trust proxy')
+app.get('trust proxy')
 app.get('/chat', function(req, res) {
   res.sendFile(__dirname + Chat)
 })
@@ -67,45 +74,46 @@ app.get('/chat', function(req, res) {
   res.status(200).send('hello')
 })
 
+app.get('/api/images', awsCtrl.signedUrl)
+
 io.on('connection', async socket => {
   console.log('User connected')
   socket.on('join room', async data => {
-    
     const db = await app.get('db')
     let existingRoom
     let roomId
     const { userId, userId2, activId } = data
     try {
-    roomIdNum = async () => {
-      if (activId) {
-        existingRoom = await db.check_for_activ_room(activId)
-        !existingRoom.length
-          ? (existingRoom = await db.create_activ_room(activId))
-          : null
-        roomId = existingRoom[0].room_id
-        console.log('Activity Room Joined', roomId)
-        return roomId
-      } else if (userId && userId2) {
-        existingRoom = await db.check_for_private_room(userId, userId2)
-        !existingRoom.length
-          ? (existingRoom = await db.create_private_room(userId, userId2))
-          : null
-        roomId = existingRoom[0].room_id
-        console.log('Private Room joined', roomId)
-        return roomId
-      } else if (userId) {
-        existingRoom = await db.check_for_user_room(userId)
-        !existingRoom.length
-          ? (existingRoom = await db.create_user_page_room(userId))
-          : null
-        roomId = existingRoom[0].room_id
-        console.log('User Page Room joined', roomId)
-        return roomId
+      roomIdNum = async () => {
+        if (activId) {
+          existingRoom = await db.check_for_activ_room(activId)
+          !existingRoom.length
+            ? (existingRoom = await db.create_activ_room(activId))
+            : null
+          roomId = existingRoom[0].room_id
+          console.log('Activity Room Joined', roomId)
+          return roomId
+        } else if (userId && userId2) {
+          existingRoom = await db.check_for_private_room(userId, userId2)
+          !existingRoom.length
+            ? (existingRoom = await db.create_private_room(userId, userId2))
+            : null
+          roomId = existingRoom[0].room_id
+          console.log('Private Room joined', roomId)
+          return roomId
+        } else if (userId) {
+          existingRoom = await db.check_for_user_room(userId)
+          !existingRoom.length
+            ? (existingRoom = await db.create_user_page_room(userId))
+            : null
+          roomId = existingRoom[0].room_id
+          console.log('User Page Room joined', roomId)
+          return roomId
+        }
       }
+    } catch (err) {
+      console.log(err)
     }
-  } catch (err) {
-    console.log(err)
-  }
     roomId = await roomIdNum()
     let messages = await db.fetch_message_history(roomId)
     socket.join(roomId)

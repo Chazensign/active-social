@@ -26,9 +26,8 @@ class ActivitiesList extends Component {
       <ActivitiesContainer>
         <h2>Activities</h2>
         
-        {this.props.addActiv && <Link to={`/wizard/step2/${this.props.userId}`}><button className='add-activity' >Add Activities</button></Link>}
+        {this.props.addActiv && <Link to={`/wizard/add/step2/${this.props.userId}`}><button className='add-activity' >Add Activities</button></Link>}
         {this.state.userActivities.map(activ => {
-          
           return (
             <Link key={activ.activ_id} to={`/activity/${activ.activ_id}`}>
               <div className='act-list-item'>

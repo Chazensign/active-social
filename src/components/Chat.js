@@ -90,40 +90,41 @@ class Chat extends Component {
     
     return (
       <ChatBox background={this.props.privateChat}>
-          {this.state.userName2 ? (
-            <h2>
-              {this.state.userName} and {this.state.userName2}'s Chat
-            </h2>
-          ) : (
-            this.props.userName && <h2>{this.props.userName}'s Public Chat</h2>
-          )}
-          {this.state.activName && <h2>Public {this.state.activName} Chat</h2>}
-          {this.state.messages.map(messageObj => {
-              return (
-              <div
-                className={
-                  +this.props.loggedInId === +messageObj.user_id
-                    ? 'user-message message'
-                    : 'others-message message'
-                }
-                key={messageObj.message_id}>
-                <p>{messageObj.message}</p>
-              </div>
-            )}
-          )}
-          <div className='input-send'>
-            <input
-              className='chat-input'
-              maxLength='100'
-              value={this.state.input}
-              onChange={e => {
-                this.setState({
-                  input: e.target.value
-                })
-              }}
-            />
-            <button onClick={this.sendMessage}>Send</button>
-          </div>
+        {this.state.userName2 ? (
+          <h2>
+            {this.state.userName} and {this.state.userName2}'s Chat
+            <div className='close' onClick={this.props.hide}>x</div>
+          </h2>
+        ) : (
+          this.props.userName && <h2>{this.props.userName}'s Public Chat</h2>
+        )}
+        {this.state.activName && <h2>Public {this.state.activName} Chat</h2>}
+        {this.state.messages.map(messageObj => {
+          return (
+            <div
+              className={
+                +this.props.loggedInId === +messageObj.user_id
+                  ? 'user-message message'
+                  : 'others-message message'
+              }
+              key={messageObj.message_id}>
+              <p>{messageObj.message}</p>
+            </div>
+          )
+        })}
+        <div className='input-send'>
+          <input
+            className='chat-input'
+            maxLength='100'
+            value={this.state.input}
+            onChange={e => {
+              this.setState({
+                input: e.target.value
+              })
+            }}
+          />
+          <button onClick={this.sendMessage}>Send</button>
+        </div>
       </ChatBox>
     )
   }
@@ -165,8 +166,19 @@ const ChatBox = styled.div`
     background: #63b8ee;
     color: #14396a;
     border-radius: 4px;
-    font-size: 2vw;
+    font-size: 24px;
     box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
+  }
+  .close {
+    position: absolute;
+    right: 2px;
+    top: -4px;
+    font-size: 20px;
+    color: black;
+  }
+  .close:hover {
+    opacity: 0.5;
+    cursor: pointer;
   }
   /* .messages-cont {
     display: flex;

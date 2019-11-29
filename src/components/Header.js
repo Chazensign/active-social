@@ -6,6 +6,8 @@ import axios from 'axios'
 import { setUser } from '../ducks/reducer'
 import { withRouter } from 'react-router-dom'
 import styled from 'styled-components'
+import Swal from 'sweetalert2'
+import bars from '../bars.svg'
 
 class Header extends Component {
   constructor(props) {
@@ -32,10 +34,16 @@ class Header extends Component {
         this.setState({ hidden: true });
         this.props.setUser(res.data.user)
         this.props.history.push(`/user/${this.props.userId}`)
-        alert(res.data.message)
+        Swal.fire({
+          icon: 'success',
+          title: res.data.message,
+          showConfirmButton: false,
+          timer: 1000
+        })
       })
       .catch(err => {
-        alert(err.message)
+        console.log(err)
+        Swal.fire(err.response.data.message)
       })
   }
 
@@ -85,7 +93,7 @@ class Header extends Component {
                 Login
               </div>
               <Link to='/wizard/step1'>Register</Link>
-              <Link>Explore</Link>
+              <Link to='/wizard/explore'>Explore</Link>
             </nav>
           ) : (
             <div>
@@ -94,10 +102,11 @@ class Header extends Component {
                 src={this.props.profilePic}
                 alt='profile'
               />
-              <div onClick={this.toUserProfile}>{this.props.firstName}</div>
+              <div className='username' onClick={this.toUserProfile}>{this.props.firstName}</div>
             </div>
           )}
         </header>
+        <img className='bars' src={bars} alt='menu'/>
         <div
           
           >
@@ -140,14 +149,23 @@ const FunctionalHeader = styled.div`
     z-index: 2;
   }
   header h1 {
-    margin-right: 200px;
+    margin-right: 300px;
   }
   header a {
     text-decoration: none;
     color: #63b8ee;
   }
+  .username {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .username:hover {
+    cursor: pointer;
+  }
   header nav {
     display: flex;
+    font-size: 18px;
+    font-weight: 600;
     justify-content: space-between;
     color: #63b8ee;
     width: 500px;
@@ -156,9 +174,21 @@ const FunctionalHeader = styled.div`
   .login:hover {
     cursor: pointer;
   }
-  @media (min-width: 720px) {
-    nav {
+  .bars {
+    display: none;
+  }
+  @media (max-width: 800px) {
+   header nav {
       display: none;
+    }
+    .bars {
+      display: inline;
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      right: 30px;
+      top: 20px;
+      z-index: 10;
     }
   }
 `

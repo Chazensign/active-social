@@ -109,12 +109,15 @@ const Step1 = props => {
               </button>
             </>
           ) : (
+            <>
             <button
               type="button"
               className='save-button'
               onClick={() => props.updateProfile()}>
               Save
             </button>
+            <button onClick={() => props.history.push(`/user/${props.userId}`)}>Cancel</button>
+            </>
           )}
         </div>
       </form>
@@ -140,6 +143,7 @@ const Step1Outer = styled.div`
   transform: translate(300px, -300px);
   box-shadow: 5px 5px 15px 5px #000000;
   padding: 30px;
+  z-index: 10;
   .info-form {
     height: 540px;
     display: flex;

@@ -71,7 +71,7 @@ const OuterEvents = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 500px;
+  max-width: 500px;
   height: 450px;
   margin: 10px;
   background: white;
@@ -82,7 +82,7 @@ const OuterEvents = styled.div`
   }
   .title {
     box-sizing: border-box;
-    width: 496px;
+    width: 100%;
     margin: 2px 0 0 0;
     padding: 5px;
     background: #63b8ee;

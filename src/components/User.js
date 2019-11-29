@@ -50,7 +50,7 @@ class User extends Component {
         <h1 className='username'>
           {this.props.firstName} {this.props.lastName}
         </h1>
-        <Link to={`/wizard/step1/${this.props.loggedInId}`}>
+        <Link to={`/wizard/step1/update/${this.props.loggedInId}`}>
           <button className='update-button'>Update Profile</button>
         </Link>
         <ChatModal
@@ -101,7 +101,7 @@ const UserPage = styled.div`
   justify-content: space-around;
   width: 100vw;
   min-height: 100vh;
-  background: grey;
+  background: #ebebeb;
   margin-top: 80px;
   .username {
     width: 100vw;

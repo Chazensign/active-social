@@ -26,10 +26,10 @@ class Member extends Component {
   }
 
   componentDidMount = () => {
+    // axios.post('/auth/session').then(res => {
+    //   this.props.setUser(res.data.user)
+    // })
     if (this.props.match.params.user_id) {
-      axios.post('/auth/session').then(res => {
-        this.props.setUser(res.data.user)
-      })
       axios.get(`api/member/${+this.props.match.params.user_id}`).then(res => {
         console.log(res)
         this.setState({
@@ -93,9 +93,11 @@ export default connect(mapStateToProps, { setUser })(Member)
 const MemberPage = styled.div`
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
   width: 100vw;
   min-height: 100vh;
-  background: grey;
+  background: #ebebeb;
   margin-top: 80px;
   .user-name {
     width: 100vw;

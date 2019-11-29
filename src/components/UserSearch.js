@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'
+import Swal  from 'sweetalert2'
 
 class UserSearch extends Component {
   constructor(props) {
@@ -11,6 +12,7 @@ class UserSearch extends Component {
       activitiesList: [],
       activ: '',
       range: 0,
+      zip: '' ,
       lessons: false
     }
   }
@@ -19,12 +21,13 @@ class UserSearch extends Component {
     axios.get('/api/activities').then(res => {
       this.setState({ activitiesList: res.data })
     })
+    if (this.props.zip) this.setState({ zip: this.props.zip });
   }
 
   userSearch = () => {
-    console.log(this.props.zip, +this.state.range)
+    console.log(+this.state.zip, +this.state.range)
     axios
-      .get(`/api/search?zip=${this.props.zip}&range=${this.state.range}`)
+      .get(`/api/search?zip=${this.state.zip}&range=${this.state.range}`)
       .then(async res => {
         console.log(res)
         await this.setState({ searchResults: res.data })
@@ -37,64 +40,79 @@ class UserSearch extends Component {
   }
   addFriend = id => {
     axios.post(`/api/friends/${id}`)
-    .then(res => alert(res.data.message))
+    .then(res => Swal.fire({
+          icon: 'success',
+          title: res.data.message,
+          showConfirmButton: false,
+          timer: 1000
+        }))
   }
 
   render() {
     return (
       <SearchContainer>
-          <div className='search-box'>
-            <h2>Find Users</h2>
-            <form>
-              <select
-                name='range'
-                onChange={e => this.searchHandleChange(e.target)}>
-                <option>Select distance</option>
-                <option value={5}>5 Miles</option>
-                <option value={10}>10 Miles</option>
-                <option value={25}>25 Miles</option>
-                <option value={50}>50 MIles</option>
-                <option value={100}>100 Miles</option>
-              </select>
-              <select name='lessons' onChange={this.searchHandleChange}>
-                <option>Select training</option>
-                <option value='true'>Yes</option>
-                <option value='false'>No</option>
-              </select>
-              <select name='activ' onChange={this.searchHandleChange}>
-                <option>Select Activity</option>
-                {this.state.activitiesList.map(activ => {
-                  return (
-                    <option key={activ.activ_id} value={activ.activ_id}>
-                      {activ.activ_title}
-                    </option>
-                  )
-                })}
-              </select>
-              <button className='search-button' type='button' onClick={this.userSearch}>
-                Search
-              </button>
-            </form>
-          </div>
-          <div className='search-results'>
-            {this.state.searchResults.map(user => {
-              return (
-                <div>
-                  <Link key={user.id} to={`/member/${user.id}`}>
+        <div className='search-box'>
+          <h2>Find Users</h2>
+          <form>
+            {!this.props.zip && (
+              <input
+                onChange={e => this.searchHandleChange(e.target)}
+                type='text'
+                name='zip'
+                value={this.state.zip}
+                placeholder='Enter Zip Code'
+              />
+            )}
+            <select
+              name='range'
+              onChange={e => this.searchHandleChange(e.target)}>
+              <option>Select distance</option>
+              <option value={5}>5 Miles</option>
+              <option value={10}>10 Miles</option>
+              <option value={25}>25 Miles</option>
+              <option value={50}>50 MIles</option>
+              <option value={100}>100 Miles</option>
+            </select>
+            <select name='lessons' onChange={this.searchHandleChange}>
+              <option>Select training</option>
+              <option value='true'>Yes</option>
+              <option value='false'>No</option>
+            </select>
+            <select name='activ' onChange={this.searchHandleChange}>
+              <option>Select Activity</option>
+              {this.state.activitiesList.map(activ => {
+                return (
+                  <option key={activ.activ_id} value={activ.activ_id}>
+                    {activ.activ_title}
+                  </option>
+                )
+              })}
+            </select>
+            <button
+              className='search-button'
+              type='button'
+              onClick={this.userSearch}>
+              Search
+            </button>
+          </form>
+        </div>
+        <div className='search-results'>
+          {this.state.searchResults.map(user => {
+            return (
+              <div>
+                <Link key={user.id} to={`/member/${user.id}`}>
+                  <div>
+                    <img src={user.profile_img} alt='' />
                     <div>
-                      <img src={user.profile_img} alt='' />
-                      <div>
-                        {user.first_name} {user.last_name}
-                      </div>
+                      {user.first_name} {user.last_name}
                     </div>
-                  </Link>
-                  <button onClick={() => this.addFriend(user.id)}>
-                    Connect
-                  </button>
-                </div>
-              )
-            })}
-          </div>
+                  </div>
+                </Link>
+                {!this.props.searchOnly && <button onClick={() => this.addFriend(user.id)}>Connect</button>}
+              </div>
+            )
+          })}
+        </div>
       </SearchContainer>
     )
   }
@@ -131,6 +149,10 @@ const SearchContainer = styled.div`
   .search-box form select {
     width: 200px;
     margin: 5px 0 0 0;
+    background: white;
+  }
+  .search-box form option {
+    background: white;
   }
   .search-button {
     margin: 10px;

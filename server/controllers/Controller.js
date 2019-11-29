@@ -75,6 +75,8 @@ module.exports = {
     .then(result => res.status(200).send(result))
   },
   getMemeberInfo: async (req, res) => {
+    console.log(req.params.id);
+    
     const db = await req.app.get('db')
     db.get_member_info(req.params.id)
     .then(result => {
@@ -157,6 +159,18 @@ module.exports = {
       req.session.user = user
       res.status(202).send({message: 'Profile Updated', user: user})})
     .catch(err => console.log(err))
+  },
+  addActivs: (req, res) => {
+    const { userActivs } = req.body
+    userActivs.forEach(activ => {
+      db.add_interests(
+        activ.activId,
+        userId,
+        activ.activContent,
+        activ.skillLevel,
+        activ.lessons
+      )
+    })
   }
   
 }

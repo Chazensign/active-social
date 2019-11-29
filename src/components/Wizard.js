@@ -7,6 +7,9 @@ import Step2 from './Step2'
 import Step3 from './Step3'
 import axios from 'axios'
 import styled from 'styled-components'
+import ExplorePage from './ExplorePage'
+import Swal from 'sweetalert2'
+
 
 class Wizard extends Component {
   constructor(props) {
@@ -56,7 +59,12 @@ class Wizard extends Component {
     await axios
       .post('/auth/register', this.state)
       .then(res => {
-        alert(res.data.message)
+        Swal.fire({
+          icon: 'success',
+          title: res.data.message,
+          showConfirmButton: false,
+          timer: 1000
+        })
         this.props.setUser(res.data.user)
 
         this.setState({
@@ -138,7 +146,11 @@ class Wizard extends Component {
       <>
         <Switch>
           <Route
-            path='/wizard/step1/:userId'
+            path='/wizard/explore'
+            render={() => <ExplorePage activities={this.state.activities} />}
+          />
+          <Route
+            path='/wizard/step1/update/:userId'
             render={() => (
               <Step1
                 updateProfile={this.updateProfile}
@@ -150,12 +162,14 @@ class Wizard extends Component {
             )}
           />
           <Route
-            path='/wizard/step2/:userId'
+            path='/wizard/add/step2/:userId'
             render={() => (
               <Step2
+                checkbox={true}
+                register={false}
                 history={this.props.history}
                 activities={this.state.activities}
-                addActivity={this.addActivity}
+                updateUserActivs={this.updateUserActivs}
               />
             )}
           />
@@ -170,23 +184,13 @@ class Wizard extends Component {
                 />
               )}
             />
-
             <Route
               path='/wizard/step2'
               render={() => (
                 <Step2
+                checkbox={true}
+                  register={true}
                   history={this.props.history}
-                  activities={this.state.activities}
-                  addActivity={this.addActivity}
-                />
-              )}
-            />
-            <Route
-              path='/wizard/step2/:userId'
-              render={() => (
-                <Step2
-                  edit={this.props}
-                  {...this.props}
                   activities={this.state.activities}
                   addActivity={this.addActivity}
                 />

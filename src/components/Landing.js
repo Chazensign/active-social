@@ -1,12 +1,13 @@
 import React from 'react';
 import backdrop from '../sportsback.jpg'
 import styled from 'styled-components'
+import { Link } from 'react-router-dom'
 
 const Landing = () => {
   return (
     <LandingBack >
-     <p>Just move to a new area, want to find people to go do things with?</p>
-     <button>Explore</button>
+     <p>Just move to a new area?  Want to find people to go do things with?</p>
+     <Link to='/wizard/explore'><button>Explore</button></Link>
     </LandingBack>
   )
 }

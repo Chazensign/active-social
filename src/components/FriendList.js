@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import styled from 'styled-components'
+import Swal from 'sweetalert2'
 
 class FriendList extends Component {
   constructor(props) {
@@ -39,7 +40,12 @@ class FriendList extends Component {
     axios.put(`/api/friend/request/${id}`)
     .then(res => {
       this.componentDidMount()
-      alert(res.data.message)
+      Swal.fire({
+        icon: 'success',
+        title: res.data.message,
+        showConfirmButton: false,
+        timer: 1000
+      })
     })
   }
 
@@ -60,6 +66,7 @@ class FriendList extends Component {
               </div>
               {typeof this.props.userId === 'number' ? (
                 <button
+                className='chat-confirm'
                   onClick={() =>
                     this.props.showPrivateChat(friend.id, friend.first_name)
                   }>
@@ -71,7 +78,7 @@ class FriendList extends Component {
                 </button>
               )}
               {this.props.requests ? (
-                <button onClick={() => this.confirmFriend(friend.id)}>
+                <button className='chat-confirm' onClick={() => this.confirmFriend(friend.id)}>
                   Confirm
                 </button>
               ) : null}
@@ -109,5 +116,27 @@ const FriendContainer = styled.div`
   }
   .contact-cont h3:hover {
     cursor: pointer;
+  }
+  button {
+     margin: 10px;
+      box-shadow: inset 0px 1px 0px 0px #bee2f9;
+      background: linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
+      background-color: #63b8ee;
+      border-radius: 6px;
+      border: 1px solid #3866a3;
+      display: inline-block;
+      cursor: pointer;
+      color: #14396a;
+      font-family: Arial;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 2px 10px;
+      text-decoration: none;
+      text-shadow: 0px 1px 0px #7cacde;
+    }
+    button:hover {
+      background: linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
+      background-color: #468ccf;
+    }
   }
 `
