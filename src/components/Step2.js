@@ -1,8 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
+import {withRouter} from 'react-router'
 
 const Step2 = props => {
-  console.log(props)
 
   return (
     <Step2Page>
@@ -35,7 +35,20 @@ const Step2 = props => {
           })}
         </div>
         {props.updateUserActivs ? (
-          <button onClick={() => props.updateUserActivs()}>Save</button>
+          <div className='add-buttons' >
+          <button onClick={() => props.history.push(`/user/${props.match.params.userId}`)}>Cancel</button>
+          <button
+              onClick={() => {
+                props.history.push(
+                  `/wizard/add/step3/${props.match.params.userId}`
+                )
+                props.addActivity(
+                  window.document.getElementsByName('activities')
+                )
+              }}>
+              Next
+            </button>
+            </div>
         ) : (props.register &&
           <div className='back-next'>
             <button
@@ -60,35 +73,47 @@ const Step2 = props => {
   )
 }
 
-export default Step2
+export default withRouter(Step2)
 
 const Step2Page = styled.div`
   .register-style {
     position: absolute;
     top: 50%;
     right: 50%;
-    transform: translate(225px, -350px);
+    transform: translate(300px, -300px);
+    box-sizing: border-box;
+    background: white;
+    width: 600px;
+    height: 660px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 5px 5px 15px 5px #000000;
-    box-sizing: border-box;
-    background: white;
     border-radius: 20px;
-    margin-top: 40px;
-    width: 450px;
+    padding: 20px;
+    box-shadow: 5px 5px 15px 5px #000000;
   }
   .explore-style {
     box-sizing: border-box;
-    margin: 80px 20px 20px 20px;
+    margin: 0;
     padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 350px;
+    height: 600px;
+    background: rgba(218, 240, 255, 0.87);
+    border-radius: 20px;
+    margin: 50px;
+    padding: 20px;
+  }
+
+  .explore-style h2 {
+    margin-top: 0;
   }
 
   .checkbox-cont {
+    box-sizing: border-box;
     height: 500px;
     overflow: scroll;
     display: flex;
@@ -97,7 +122,7 @@ const Step2Page = styled.div`
     width: 300px;
     font-size: 20px;
     background: white;
-    box-shadow: inset 0px 0px 4px 1px #000000;
+    box-shadow: inset 0px 0px 4px 1px grey;
     border-radius: 3px;
     padding: 10px;
     margin: 10px;
@@ -123,7 +148,7 @@ const Step2Page = styled.div`
   .back-next {
     box-sizing: border-box;
     height: 60px;
-    width: 200px;
+    width: 250px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -151,5 +176,30 @@ const Step2Page = styled.div`
   button:active {
     position: relative;
     top: 1px;
+  }
+  @media (max-width: 800px) {
+    .register-style {
+      margin-top: 0;
+      padding-top: 0;
+      position: inherit;
+      transform: unset;
+      top: unset;
+      right: unset;
+      height: 600px;
+      width: 315px;
+    }
+    .explore-style {
+      margin: 0;
+      width: 350px;
+    }
+    .checkbox-cont {
+      width: 275px;
+      height: 432.2px;
+    }
+    .back-next {
+      /* margin-top: 10px; */
+      margin-bottom: 15px;
+      height: 50px;
+    }
   }
 `

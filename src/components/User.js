@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import Chat from './Chat'
@@ -28,14 +27,6 @@ class User extends Component {
     }
   }
 
-  componentDidUpdate = () => {
-    axios
-      .post('/auth/session')
-      .then(res => {
-        this.props.setUser(res.data.user)
-      })
-      .catch(err => console.log(err))
-  }
   showPrivateChat = (id, name) => {
     this.setState({ privateChat: true, otherChatter: name, otherChatterId: id })
   }
@@ -45,6 +36,7 @@ class User extends Component {
   }
 
   render() {
+    
     return (
       <UserPage>
         <h1 className='username'>
@@ -62,19 +54,26 @@ class User extends Component {
           hidden={this.state.privateChat}
         />
         <FriendList
-          showChat={'true'}
+          showChat={true}
           {...this.props}
           title='Friends'
           showPrivateChat={this.showPrivateChat}
           userId={this.props.loggedInId}
+          remove={true}
         />
         <FriendList
           title='Pending Requests'
           userId={this.props.loggedInId}
           showPrivateChat={this.showPrivateChat}
           requests='true'
+          remove={false}
         />
-        <UserSearch zip={this.props.zip} />
+        <UserSearch
+          userId={this.props.loggedInId}
+          friends={this.props.friends}
+          zip={this.props.zip}
+          searchOnly={false}
+        />
         <ActivitiesList addActiv={true} userId={this.props.loggedInId} />
         <Chat userId={this.props.loggedInId} userName={this.props.firstName} />
         <EventList userId={this.props.match.params.user_id} />
@@ -89,23 +88,27 @@ function mapStateToProps(reduxState) {
     firstName: reduxState.firstName,
     lastName: reduxState.lastName,
     loggedInId: reduxState.userId,
-    zip: reduxState.zip
+    zip: reduxState.zip,
+    friends: reduxState.friends,
+    events: reduxState.events
   }
 }
 
 export default connect(mapStateToProps, { setUser })(User)
 
 const UserPage = styled.div`
+  @import url('https://fonts.googleapis.com/css?family=Noto+Sans:700&display=swap');
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
   width: 100vw;
-  min-height: 100vh;
   background: #ebebeb;
-  margin-top: 80px;
+
   .username {
     width: 100vw;
     text-align: center;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 58px;
     margin-top: 20px;
   }
 
@@ -132,5 +135,10 @@ const UserPage = styled.div`
   .update-button:hover {
     background: linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
     background-color: #468ccf;
+  }
+  @media (max-width: 800px) {
+    .update-button {
+      display: none;
+    }
   }
 `

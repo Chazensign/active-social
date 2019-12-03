@@ -26,12 +26,14 @@ class Member extends Component {
   }
 
   componentDidMount = () => {
-    // axios.post('/auth/session').then(res => {
-    //   this.props.setUser(res.data.user)
-    // })
+     axios.post('/auth/session').then(res => {
+       console.log(res.data.user)
+       this.props.setUser(res.data.user)
+     })
     if (this.props.match.params.user_id) {
-      axios.get(`api/member/${+this.props.match.params.user_id}`).then(res => {
-        console.log(res)
+      axios
+      .get(`api/member/${+this.props.match.params.user_id}`)
+      .then(res => {
         this.setState({
           userId: res.data.id,
           email: res.data.email,
@@ -44,13 +46,16 @@ class Member extends Component {
           zip: res.data.zip
         })
       })
+      .catch(err => console.log(err)
+      )
     }
   }
-  componentDidUpdate = () => {
-    axios.post('/auth/session').then(res => {
-      this.props.setUser(res.data.user)
-    })
-  }
+  // componentDidUpdate = () => {
+  //   console.log(this.props.reduxState)
+  //   axios.post('/auth/session', {user:{...this.props.reduxState}}).then(res => {
+  //     this.props.setUser(res.data.user)
+  //   })
+  // }
 
   render() {
     return (
@@ -68,13 +73,13 @@ class Member extends Component {
           addActiv={false}
           userId={this.props.match.params.user_id}
         />
-        <EventList userId={this.props.match.params.user_id} />
         <FriendList
           title={'Friends'}
           showChat={false}
           {...this.props}
           userId={this.props.match.params.user_id}
         />
+        <EventList userId={this.props.match.params.user_id} />
       </MemberPage>
     )
   }
@@ -82,6 +87,7 @@ class Member extends Component {
 
 function mapStateToProps(reduxState) {
   return {
+    reduxState: reduxState,
     profilePic: reduxState.profilePic,
     firstName: reduxState.firstName,
     userId: reduxState.userId
@@ -91,16 +97,17 @@ function mapStateToProps(reduxState) {
 export default connect(mapStateToProps, { setUser })(Member)
 
 const MemberPage = styled.div`
+  @import url('https://fonts.googleapis.com/css?family=Noto+Sans:700&display=swap');
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: space-around;
   width: 100vw;
-  min-height: 100vh;
   background: #ebebeb;
-  margin-top: 80px;
   .user-name {
     width: 100vw;
     text-align: center;
+    font-size: 58px;
+    font-family: 'Noto Sans', sans-serif;
   }
 `

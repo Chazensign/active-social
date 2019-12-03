@@ -81,7 +81,14 @@ class Wizard extends Component {
           userActivs: []
         })
       })
-      .catch(err => alert(err))
+      .catch(err =>
+        Swal.fire({
+          icon: 'error',
+          title: err.data.message,
+          showConfirmButton: false,
+          timer: 1000
+        })
+      )
     this.props.history.push(`/user/${this.props.userId}`)
   }
 
@@ -136,9 +143,25 @@ class Wizard extends Component {
       })
       .then(res => {
         this.props.setUser(res.data.user)
-        alert(res.data.message)
+        Swal.fire({
+          icon: 'success',
+          title: res.data.message,
+          showConfirmButton: false,
+          timer: 1000
       })
+    })
     this.props.history.push(`/user/${this.props.userId}`)
+  }
+  addToUserActivs = () => {
+    console.log('hitting wizard')
+    axios.post('/api/activities', {userActivs: this.state.userActivs}).then(res =>
+      Swal.fire({
+        icon: 'success',
+        title: res.data.message,
+        showConfirmButton: false,
+        timer: 1000
+      })
+    )
   }
 
   render() {
@@ -170,6 +193,19 @@ class Wizard extends Component {
                 history={this.props.history}
                 activities={this.state.activities}
                 updateUserActivs={this.updateUserActivs}
+                addActivity={this.addActivity}
+              />
+            )}
+          />
+          <Route
+            path='/wizard/add/step3/:userId'
+            render={() => (
+              <Step3
+                {...this.props}
+                addActivity={true}
+                userActivs={this.state.userActivs}
+                updateUserActivs={this.updateUserActivs}
+                addToUserActivs={this.addToUserActivs}
               />
             )}
           />
@@ -188,7 +224,7 @@ class Wizard extends Component {
               path='/wizard/step2'
               render={() => (
                 <Step2
-                checkbox={true}
+                  checkbox={true}
                   register={true}
                   history={this.props.history}
                   activities={this.state.activities}
@@ -201,6 +237,7 @@ class Wizard extends Component {
               render={() => (
                 <Step3
                   {...this.props}
+                  addActivity={false}
                   createUser={this.createUser}
                   userActivs={this.state.userActivs}
                   updateUserActivs={this.updateUserActivs}
@@ -226,13 +263,12 @@ export default connect(mapStateToProps, { setUser })(Wizard)
 
 const WizardBack = styled.div`
   position: relative;
-  background: rgba(0, 83, 166, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  z-index: 2;
-  /* margin-top: 80px; */
-  /* align-items: center;
-  justify-content: center; */
+  z-index: 5;
+  align-items: center;
+  justify-content: center;
 `

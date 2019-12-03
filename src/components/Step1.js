@@ -128,24 +128,25 @@ const Step1 = props => {
 export default Step1
 
 const Step1Outer = styled.div`
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  transform: translate(300px, -300px);
   box-sizing: border-box;
   background: white;
   width: 600px;
-  height: 600px;
+  height: 660px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 20px;
-  position: absolute;
-  top: 50%;
-  right: 50%;
-  transform: translate(300px, -300px);
   box-shadow: 5px 5px 15px 5px #000000;
-  padding: 30px;
+  padding: 20px;
   z-index: 10;
+
   .info-form {
-    height: 540px;
+    height: 620px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -167,6 +168,7 @@ const Step1Outer = styled.div`
   .button-cont {
     width: 350px;
     display: flex;
+    margin-bottom: 10px;
     align-items: center;
     justify-content: space-around;
   }
@@ -194,8 +196,34 @@ const Step1Outer = styled.div`
     position: relative;
     top: 1px;
   }
-  .save-button{
+  .save-button {
     align-self: center;
     justify-self: !important center;
+  }
+  @media (max-width: 800px) {
+    border-radius: 20px;
+    top: unset;
+    right: unset;
+    transform: translate(0, 0);
+    height: 600px;
+    padding: 7px 7px 7px 7px;
+    width: 315px;
+
+    .button-cont {
+      align-self: bottom;
+      box-sizing: border-box;
+      margin-top: 15px;
+      width: 220px;
+    }
+    .line-label {
+      padding-left: 8px;
+    }
+    .info-form input {
+      width: 240px;
+    }
+    .info-form {
+      width: 250px;
+      height: 550px;
+    }
   }
 `

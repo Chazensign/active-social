@@ -16,7 +16,15 @@ const ExplorePage = (props) => {
 export default withRouter(ExplorePage)
 
 const ExploreBack = styled.div`
-margin-top: 80px;
-display: flex;
-justify-content: space-around;
+  box-sizing: border-box;
+  display: flex;
+  width: 1100px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  @media (max-width: 800px) {
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
 `

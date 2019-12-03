@@ -1,5 +1,4 @@
 import React from 'react';
-import backdrop from '../sportsback.jpg'
 import styled from 'styled-components'
 import { Link } from 'react-router-dom'
 
@@ -17,9 +16,8 @@ export default Landing;
 const LandingBack = styled.div`
   width: 100vw;
   height: 100vh;
-  background-image: url(${backdrop});
-  background-position: center;
-  background-size: cover;
+  
+  
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,7 +28,7 @@ const LandingBack = styled.div`
   p {
     font-size: 40px;
     font-weight: 700;
-    color: #001850;
+    color: #14396a;
     max-width: 700px;
     margin: 50px;
     padding: 20px;

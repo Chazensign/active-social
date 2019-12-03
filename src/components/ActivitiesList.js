@@ -14,10 +14,12 @@ class ActivitiesList extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.userId) {
+    if (this.props.userId > 0) {
       axios
       .get(`/api/activities/${this.props.userId}`)
       .then(res => this.setState({ userActivities: res.data }))
+      .catch(err => console.log(err)
+      )
     }
   }
 
@@ -59,8 +61,8 @@ const ActivitiesContainer = styled.div`
     width: 296px;
     margin: 2px 0 0 2px;
     padding: 5px;
-    background: #63b8ee;
-    color: #14396a;
+    background: #14396a;
+    color: #63b8ee;
     border-radius: 4px;
     box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
   }

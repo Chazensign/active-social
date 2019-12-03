@@ -3,11 +3,13 @@ import Login from './Login'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
-import { setUser } from '../ducks/reducer'
+import { setUser, clearUser } from '../ducks/reducer'
 import { withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 import Swal from 'sweetalert2'
 import bars from '../bars.svg'
+import DropDownMenu from './DropDownMenu'
+import UserDropDown from './UserDropDown'
 
 class Header extends Component {
   constructor(props) {
@@ -17,9 +19,28 @@ class Header extends Component {
       password: '',
       display: false,
       loginDisp: false,
-      hidden: true
+      hidden: true,
+      menuDisp: 'none'
     }
   }
+
+  componentDidMount = () => {
+    console.log('header mounted');
+    
+    axios
+      .post('/auth/session')
+      .then(res => {
+        this.props.setUser(res.data.user)
+      })
+  }
+  // componentDidUpdate = () => {
+  //   console.log(this.props.reduxState)
+  //   axios
+  //     .post('/auth/session')
+  //     .then(res => {
+  //       this.props.setUser(res.data.user)
+  //     })
+  // }
   handleChange = trg => {
     this.setState({ [trg.name]: trg.value })
   }
@@ -31,7 +52,7 @@ class Header extends Component {
         password: this.state.password
       })
       .then(res => {
-        this.setState({ hidden: true });
+        this.setState({ hidden: true })
         this.props.setUser(res.data.user)
         this.props.history.push(`/user/${this.props.userId}`)
         Swal.fire({
@@ -42,8 +63,11 @@ class Header extends Component {
         })
       })
       .catch(err => {
-        console.log(err)
-        Swal.fire(err.response.data.message)
+        Swal.fire({
+          icon: 'error',
+          title: err.response.data.message,
+          showConfirmButton: true
+        })
       })
   }
 
@@ -52,8 +76,8 @@ class Header extends Component {
   }
 
   closeLogin = event => {
-   let location = document.getElementsByClassName('show-login')
-   location = location[0]
+    let location = document.getElementsByClassName('show-login')
+    location = location[0]
     if (event.target === location || event.target === 'go') {
       this.login.classList.remove('hide-login')
       this.login.classList.add('return-login')
@@ -64,7 +88,6 @@ class Header extends Component {
       }, 400)
     }
   }
-
   showLogin = () => {
     this.setState({ loginDisp: !this.state.loginDisp })
     this.login.classList.remove('hide-login')
@@ -73,22 +96,35 @@ class Header extends Component {
       document.addEventListener('click', this.closeLogin)
     })
   }
-  assignLogin =(element) => {
+  assignLogin = element => {
     this.login = element
   }
-
+  showMenu = value => {
+    this.setState({ menuDisp: value })
+  }
+  logout = () => {
+    axios.delete('/auth/logout').then(res => {
+      this.setState({ loginDisp: false })
+      this.props.clearUser()
+      this.props.history.push('/')
+      Swal.fire({
+        icon: 'success',
+        title: res.data.message,
+        showConfirmButton: false,
+        timer: 1000
+      })
+    })
+  }
 
   render() {
-     
     return (
       <FunctionalHeader>
         <header>
           <Link to='/'>
             <h1>Logo/Title</h1>
           </Link>
-
           {!this.state.loginDisp && !this.props.firstName ? (
-            <nav>
+            <nav className='login-nav'>
               <div className='login' onClick={this.showLogin}>
                 Login
               </div>
@@ -96,20 +132,52 @@ class Header extends Component {
               <Link to='/wizard/explore'>Explore</Link>
             </nav>
           ) : (
-            <div>
-              <img
-                hidden={!this.props.profilePic}
-                src={this.props.profilePic}
-                alt='profile'
-              />
-              <div className='username' onClick={this.toUserProfile}>{this.props.firstName}</div>
+            <div className='logout-nav'>
+              <div className='username-pic'>
+                <img
+                  hidden={!this.props.profilePic}
+                  src={this.props.profilePic}
+                  alt='profile'
+                />
+                <div className='username' onClick={this.toUserProfile}>
+                  {this.props.firstName}
+                </div>
+              </div>
+              <nav className='logout' onClick={this.logout}>
+                Logout
+              </nav>
             </div>
           )}
+          <div className='initals-bars'>
+            {this.props.firstName && (
+              <div onClick={this.toUserProfile} className='user-initials'>
+                {this.props.firstName.charAt(0)}
+                {this.props.lastName.charAt(0)}
+              </div>
+            )}
+            <img
+              className={!this.props.firstName ? 'bars regular' : 'bars small'}
+              onClick={() => this.showMenu('flex')}
+              src={bars}
+              alt='menu'
+            />
+          </div>
+          {!this.props.firstName ? (
+            <DropDownMenu
+              showMenu={this.showMenu}
+              menuDisp={this.state.menuDisp}
+              showLogin={this.showLogin}
+            />
+          ) : (
+            <UserDropDown
+              logout={this.logout}
+              loggedInId={this.props.userId}
+              showMenu={this.showMenu}
+              menuDisp={this.state.menuDisp}
+            />
+          )}
         </header>
-        <img className='bars' src={bars} alt='menu'/>
-        <div
-          
-          >
+        <div>
           <Login
             assignLogin={this.assignLogin}
             hidden={this.state.hidden}
@@ -128,27 +196,38 @@ function mapStateToProps(reduxState) {
   return {
     profilePic: reduxState.profilePic,
     firstName: reduxState.firstName,
-    userId: reduxState.userId
+    lastName: reduxState.lastName,
+    userId: reduxState.userId,
+    reduxState
   }
 }
 
-export default withRouter(connect(mapStateToProps, {setUser})(Header))
+export default withRouter(connect(mapStateToProps, {setUser, clearUser})(Header))
 
 const FunctionalHeader = styled.div`
   header {
     box-sizing: border-box;
     width: 100vw;
+    height: 80px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background: #161a1ff7;
+    justify-content: space-between;
+    background: linear-gradient(
+      to bottom,
+      #14396a 15%,
+      #14396abf 100%,
+      #14396a73 100%,
+      #14396a4d 100%
+    );
     color: white;
     padding: 0 70px 0 70px;
     position: fixed;
     top: 0px;
+    left: 0px;
     z-index: 2;
   }
   header h1 {
+    /* color: #00d625; */
     margin-right: 300px;
   }
   header a {
@@ -158,18 +237,30 @@ const FunctionalHeader = styled.div`
   .username {
     font-size: 18px;
     font-weight: 700;
+    margin-right: 30px;
   }
   .username:hover {
     cursor: pointer;
   }
-  header nav {
+  .login-nav {
     display: flex;
     font-size: 18px;
     font-weight: 600;
     justify-content: space-between;
     color: #63b8ee;
-    width: 500px;
+    width: 450px;
     min-width: 230px;
+  }
+  .logout-nav {
+    display: flex;
+  }
+  .logout {
+    font-size: 18px;
+    font-weight: 600;
+    color: #63b8ee;
+  }
+  .logout:hover {
+    cursor: pointer;
   }
   .login:hover {
     cursor: pointer;
@@ -177,18 +268,50 @@ const FunctionalHeader = styled.div`
   .bars {
     display: none;
   }
+  .initals-bars {
+    display: none;
+  }
+
   @media (max-width: 800px) {
-   header nav {
+    header {
+      padding: 0 30px 0 30px;
+    }
+    header h1 {
+      margin-right: 80px;
+      font-size: 30px;
+    }
+    .login-nav {
       display: none;
     }
     .bars {
       display: inline;
+      z-index: 3;
+    }
+    .regular {
       width: 50px;
       height: 50px;
       position: absolute;
       right: 30px;
-      top: 20px;
-      z-index: 10;
+      top: 15px;
+    }
+    .small {
+      height: 30px;
+      width: 30px;
+      position: absolute;
+      right: 15px;
+      top: 24px;
+    }
+    .bars:active {
+      fill: #63b8ee;
+    }
+    .username-pic {
+      display: none;
+    }
+    .user-initials {
+      margin-right: 40px;
+      display: initial;
+      font-size: 24px;
+      font-weight: 700;
     }
   }
 `

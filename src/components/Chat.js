@@ -86,6 +86,7 @@ class Chat extends Component {
       messages: data.messages
     })
   }
+  
   render() {
     
     return (
@@ -163,8 +164,8 @@ const ChatBox = styled.div`
     width: 296px;
     margin: 2px 0 0 0;
     padding: 5px;
-    background: #63b8ee;
-    color: #14396a;
+    background: #14396a;
+    color: #63b8ee;
     border-radius: 4px;
     font-size: 24px;
     box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
@@ -174,25 +175,11 @@ const ChatBox = styled.div`
     right: 2px;
     top: -4px;
     font-size: 20px;
-    color: black;
+    color: white;
   }
   .close:hover {
     opacity: 0.5;
     cursor: pointer;
-  }
-  /* .messages-cont {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: flex-end;
-    box-sizing: border-box;
-    height: 450px;
-    width: 300px;
-    background: ${props => (props.background ? 'red' : 'white')};
-    box-shadow: inset 0px 0px 4px 1px #000000;
-    border-radius: 6px;
-    overflow: scroll;
-    padding-bottom: 70px; */
   }
   .message {
     box-sizing: border-box;

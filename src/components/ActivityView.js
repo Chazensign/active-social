@@ -21,6 +21,8 @@ class ActivityView extends Component {
       axios
         .get(`/api/activity/${this.props.match.params.activ_id}`)
         .then(res => {
+          console.log(res.data);
+          
           this.setState({
             instructors: res.data.instructors,
             userNames: res.data.users,
@@ -38,7 +40,7 @@ class ActivityView extends Component {
         <h1>{this.state.activity.activ_title}</h1>
         {this.state.activity.activ_title && (
           <Chat
-            activName={this.state.activity.active_title}
+            activName={this.state.activity.activ_title}
             activity={this.state.activity.activ_id}
           />
         )}
@@ -46,6 +48,7 @@ class ActivityView extends Component {
           <FriendList
             {...this.props}
             title='Users'
+            showFriends={true}
             userNames={this.state.userNames}
           />
         ) : null}
@@ -53,6 +56,7 @@ class ActivityView extends Component {
           <FriendList
             {...this.props}
             title='Instructors'
+            showFriends={true}
             userNames={this.state.instructors}
           />
         ) : null}
@@ -64,12 +68,15 @@ class ActivityView extends Component {
 export default ActivityView
 
 const ActivityPage = styled.div`
-  margin-top: 80px;
+  box-sizing: border-box;
+  padding-top: 80px;
   width: 100vw;
   min-height: 100vh;
   display: flex;
+  justify-content: space-around;
+  align-items: center;
   flex-wrap: wrap;
-  background: grey;
+  background: #ebebeb;
 
   h1 {
     width: 100vw;

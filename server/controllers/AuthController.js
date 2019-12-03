@@ -63,17 +63,29 @@ module.exports = {
       user_id,
       zip
     } = foundUser[0]
+    const friends = await db.get_redux_friends(user_id)
+    const events = await db.get_redux_events(user_id)
     const user = {
       firstName: first_name,
       lastName: last_name,
       profilePic: profile_img,
       userId: user_id,
-      zip: zip
+      zip: zip,
+      friends: friends,
+      events: events
     }
     req.session.user = user
-    res.status(200).send({message: 'Logged in.', user: user})
+    res
+      .status(200)
+      .send({
+        message: 'Logged in.',
+        user: { ...user}
+      })
   },
-  logOut: (req, res) => {},
+  logOut: (req, res) => {
+    req.session.destroy()
+    res.status(200).send({message: 'Logged Out'})
+  },
 
   getSession: (req, res) => {
     if (req.session.user.firstName) {

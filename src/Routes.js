@@ -18,10 +18,6 @@ export default (
     <Route path='/search' component={UserSearch} ></Route>
     <Route path='/user/:user_id' component={User} ></Route>
     <Route path='/activity/:activ_id' component={ActivityView} ></Route>
-    {/* <Route path='' component={} ></Route> */}
-    {/* <Route path='' component={} ></Route> */}
-    {/* <Route path='' component={} ></Route> */}
-    {/* <Route path='' component={} ></Route> */}
   </Switch>
 
 )
