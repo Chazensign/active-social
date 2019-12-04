@@ -1,181 +1,83 @@
-import React, { Component } from 'react'
+import React from 'react'
 import axios from 'axios'
 import styled from 'styled-components'
-import Swal from 'sweetalert2'
-import { connect } from 'react-redux'
 import ReactLoading from 'react-loading'
-import { updateFriends } from '../ducks/reducer'
-class FriendList extends Component {
-  static getDerivedStateFromProps = (props, state) => {
-    if (props.friendList !== state.friends) return { 
-      friends: props.friendList
-    }
-  }
-  constructor(props) {
-    super(props)
-    this.state = {
-      friends: []
-    }
-  }
-  componentDidMount = () => {
-    if (this.props.userId && this.props.requests) {
-      axios.get(`/api/friend/requests/${this.props.userId}`).then(res => {
-        this.setState({ friends: res.data })
-      })
-    } else if (this.props.userId) {
-      console.log(this.props.friendList)
-      this.setState({ friends: this.props.friendList })
-    } else if (this.props.userNames) {
-      this.setState({ friends: [...this.props.userNames] })
-    }
-  }
-  goToUserPage = id => {
-    this.props.history.push(`/member/${id}`)
+import Swal from 'sweetalert2'
+
+const FriendList = props => {
+  const goToUserPage = id => {
+    props.history.push(`/member/${id}`)
     window.location.reload(true)
   }
-  addFriend = id => {
-    axios
-      .post(`/api/friends/${id}`)
-      .then(res => this.props.updateFriends(res.data.friends))
+
+  const addFriend = id => {
+    if (props.userId !== 0) {
+      axios
+        .post(`/api/friends/${id}`)
+        .then(res => props.updateFriends(res.data.friends))
+    }else {
+     Swal.fire({
+       icon: 'error',
+       title: 'No User',
+       text: 'Please Login or Create Account.',
+       showConfirmButton: true
+     })
+    }
   }
-  confirmFriend = id => {
-    axios.put(`/api/friend/request/${id}`).then(res => {
-      this.setState({ friends: res.data.friends })
-      this.props.updateFriends(res.data.friends)
-    Swal.fire({
-      icon: 'success',
-      title: res.data.message,
-      showConfirmButton: false,
-      timer: 1000
-    })
-    })
-  }
-  denyFriend = id => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You will remove this request.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove it!',
-      cancelButtonText: 'No, keep it'
-    }).then(result => {
-      if (result.value) {
-        axios.delete(`/api/friend/request/${id}`).then(res => {
-          this.setState({ friends: res.data })
-          Swal.fire({
-            icon: 'success',
-            title: 'This request has been removed.',
-            showConfirmButton: false,
-            timer: 1000
-          })
-        })
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        Swal.fire('Cancelled', 'Your connection remains :)', 'error')
-      }
-    })
-  }
-  removeFriend = id => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You will remove this connection.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, remove it!',
-      cancelButtonText: 'No, keep it'
-    }).then(result => {
-      if (result.value) {
-        axios.delete(`/api/friends/${id}`).then(res => {
-          this.setState({ friends: res.data })
-          this.props.updateReduxFriends()
-          Swal.fire({
-            icon: 'success',
-            title: 'Removed!',
-            text: 'Your connection has been removed.',
-            showConfirmButton: false,
-            timer: 1000
-          })
-        })
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        Swal.fire('Cancelled', 'Your connection remains :)', 'error')
-      }
-    })
-  }
-  render() {
-    return (
-      <FriendContainer>
-        <div className='contact-cont'>
-          <h2>{this.props.title}</h2>
-          {this.state.friends ? (
-            this.state.friends.map(friend => {
-              return (
-                <div key={friend.id}>
-                  <div onClick={() => this.goToUserPage(friend.id)}>
-                    <img src={friend.profile_img} alt='' />
-                    <h3>
-                      {friend.first_name} {friend.last_name}
-                    </h3>
-                  </div>
-                  {this.props.userId > 0 ? (
-                    <>
-                      <button
-                        className='chat-confirm'
-                        onClick={() =>
-                          this.props.showPrivateChat(
-                            friend.id,
-                            friend.first_name
-                          )
-                        }>
-                        Chat
-                      </button>
-                      {this.props.remove && (
-                        <button onClick={() => this.removeFriend(friend.id)}>
-                          Remove
-                        </button>
-                      )}
-                    </>
-                  ) : (
-                    <button onClick={() => this.addFriend(friend.id)}>
-                      Connect
-                    </button>
-                  )}
-                  {this.props.requests ? (
-                    <>
-                      <button
-                        className='chat-confirm'
-                        onClick={() => this.confirmFriend(friend.id)}>
-                        Confirm
-                      </button>
-                      <button onClick={() => this.denyFriend(friend.id)}>
-                        Deny
-                      </button>
-                    </>
-                  ) : null}
+  
+  return (
+    <FriendContainer>
+      <div className='contact-cont'>
+        <h2>{props.title}</h2>
+        {props.userNames.length > 0 ? (
+          props.userNames.map(friend => {
+            return (
+              <div key={friend.id}>
+                <div onClick={() => goToUserPage(friend.id)}>
+                  <img src={friend.profile_img} alt='' />
+                  <h3>
+                    {friend.first_name} {friend.last_name}
+                  </h3>
                 </div>
-              )
-            })
-          ) : (
-            <ReactLoading
-              type={'spokes'}
-              color={'grey'}
-              height={'75px'}
-              width={'75px'}
-            />
-          )}
-        </div>
-      </FriendContainer>
-    )
-  }
+                {!(props.userId === friend.id) ? (
+                  <>
+                    {!(props.friends.includes(friend.id)) ?
+                    <button onClick={() => addFriend(friend.id)}>
+                      Connect
+                    </button> :
+                    <button
+                      className='chat-confirm'
+                      onClick={() =>
+                        props.showPrivateChat(friend.id, friend.first_name)
+                      }>
+                      Chat
+                    </button> }
+                    {props.remove && (
+                      <button onClick={() => props.removeFriend(friend.id)}>
+                        Remove
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  null
+                )}
+              </div>
+            )
+          })
+        ) : (props.emptyFriends ? <h3 className='no-connections' >No Connections</h3> :
+          <ReactLoading
+            type={'spokes'}
+            color={'grey'}
+            height={'75px'}
+            width={'75px'}
+          />
+        )}
+      </div>
+    </FriendContainer>
+  )
 }
-function mapStateToProps(reduxState) {
-  return {
-    profilePic: reduxState.profilePic,
-    firstName: reduxState.firstName,
-    lastName: reduxState.lastName,
-    userId: reduxState.userId,
-    friends: reduxState.friends
-  }
-}
-export default connect(mapStateToProps, { updateFriends })(FriendList)
+export default FriendList
+
 const FriendContainer = styled.div`
   height: 450px;
   width: 300px;

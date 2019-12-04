@@ -63,6 +63,7 @@ module.exports = {
       zip
     } = foundUser[0]
     const friends = await db.get_redux_friends(user_id)
+    const friendIds = friends.map(friend => friend.second_id)
     const events = await db.get_redux_events(user_id)
     const user = {
       firstName: first_name,
@@ -70,7 +71,7 @@ module.exports = {
       profilePic: profile_img,
       userId: user_id,
       zip: zip,
-      friends: friends,
+      friends: friendIds,
       events: events
     }
     req.session.user = user

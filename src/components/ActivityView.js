@@ -4,6 +4,7 @@ import Chat from './Chat'
 import FriendList from './FriendList'
 import EventList from './EventList'
 import styled from 'styled-components'
+import { connect } from 'react-redux'
 
 class ActivityView extends Component {
   constructor(props) {
@@ -12,7 +13,8 @@ class ActivityView extends Component {
       activity: {},
       userNames: [],
       instructors: [],
-      events: []
+      events: [],
+      friends: []
     }
   }
 
@@ -21,8 +23,6 @@ class ActivityView extends Component {
       axios
         .get(`/api/activity/${this.props.match.params.activ_id}`)
         .then(res => {
-          console.log(res.data);
-          
           this.setState({
             instructors: res.data.instructors,
             userNames: res.data.users,
@@ -33,43 +33,58 @@ class ActivityView extends Component {
     }
   }
 
+
   render() {
-    if (this.state.activity) return (
-      <ActivityPage>
-        {/* <img src={require(this.state.activity.img)} alt='' /> */}
-        <h1>{this.state.activity.activ_title}</h1>
-        {this.state.activity.activ_title && (
-          <Chat
-            activName={this.state.activity.activ_title}
-            activity={this.state.activity.activ_id}
-          />
-        )}
-        {this.state.userNames[0] ? (
-          <FriendList
-            {...this.props}
-            title='Users'
-            showFriends={true}
-            userNames={this.state.userNames}
-          />
-        ) : null}
-        {this.state.instructors[0] ? (
-          <FriendList
-            {...this.props}
-            title='Instructors'
-            showFriends={true}
-            userNames={this.state.instructors}
-          />
-        ) : null}
-        <EventList activId={this.props.match.params.activ_id} />
-      </ActivityPage>)
+    if (this.state.activity)
+      return (
+        <ActivityPage>
+          <div className='img-title' >
+            <img className='sport-svg' src={this.state.activity.img} alt='' />
+            <h1 className='activ-title' >{this.state.activity.activ_title}</h1>
+          </div>
+          {this.state.activity.activ_title && (
+            <Chat
+              activName={this.state.activity.activ_title}
+              activity={this.state.activity.activ_id}
+            />
+          )}
+          {this.state.userNames[0] ? (
+            <FriendList
+              {...this.props}
+              addFriend={this.addFriend}
+              title='Users'
+              showFriends={true}
+              userNames={this.state.userNames}
+            />
+          ) : null}
+          {this.state.instructors[0] ? (
+            <FriendList
+              {...this.props}
+              friends={this.state.friends}
+              title='Instructors'
+              showFriends={true}
+              userNames={this.state.instructors}
+            />
+          ) : null}
+          <EventList activId={this.props.match.params.activ_id} />
+        </ActivityPage>
+      )
   }
 }
 
-export default ActivityView
+function mapStateToProps(reduxState) {
+  return {
+    loggedInId: reduxState.userId,
+    zip: reduxState.zip,
+    friends: reduxState.friends,
+    events: reduxState.events
+  }
+}
+
+export default connect(mapStateToProps)(ActivityView)
 
 const ActivityPage = styled.div`
   box-sizing: border-box;
-  padding-top: 80px;
   width: 100vw;
   min-height: 100vh;
   display: flex;
@@ -77,8 +92,18 @@ const ActivityPage = styled.div`
   align-items: center;
   flex-wrap: wrap;
   background: #ebebeb;
-
-  h1 {
+  .img-title {
     width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
   }
+  .sport-svg {
+    height: 75px;
+  }
+ .activ-title {
+    font-size: 48px;
+    margin: 20px;
+  } 
 `

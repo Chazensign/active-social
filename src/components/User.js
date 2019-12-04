@@ -6,10 +6,12 @@ import FriendList from './FriendList'
 import EventList from './EventList'
 import ActivitiesList from './ActivitiesList'
 import ChatModal from './ChatModal'
+import RequestList from './RequestList'
 import { setUser, updateFriends } from '../ducks/reducer'
 import UserSearch from './UserSearch'
 import styled from 'styled-components'
 import axios from 'axios'
+import Swal from 'sweetalert2'
 
 class User extends Component {
   constructor(props) {
@@ -19,20 +21,27 @@ class User extends Component {
       otherChatterId: 0,
       aboutContent: '',
       privateChat: false,
-      friends: []
+      friendList: [],
+      emptyRequests: false,
+      emptyFriends: false,
+      requestList: []
     }
   }
 
   componentDidMount = () => {
-    if (+this.props.match.params.user_id !== +this.props.loggedInId) {
-      this.props.history.push(`/member/${this.props.match.params.user_id}`)
-    }
     axios.post('/auth/session').then(res => {
       this.props.setUser(res.data.user)
     })
-    console.log('component mounted')
+    if (+this.props.match.params.user_id !== +this.props.loggedInId) {
+      this.props.history.push(`/member/${this.props.match.params.user_id}`)
+    }
+    axios.get(`/api/friend/requests/${this.props.loggedInId}`).then(res => {
+      this.setState({ requestList: res.data })
+      if (res.data.length === 0) {
+        this.setState({ emptyRequests: true })
+      }
+    })
     this.getCurrentFriends()
-   
   }
 
   showPrivateChat = (id, name) => {
@@ -43,19 +52,86 @@ class User extends Component {
     this.setState({ privateChat: false })
   }
   getCurrentFriends = () => {
-     axios.get(`/api/friends/${this.props.loggedInId}`).then(res => {
-       console.log(res.data)
-       this.setState({ friends: res.data })
-     })
+    axios.get(`/api/friends/${this.props.loggedInId}`).then(res => {
+      this.setState({ friendList: res.data })
+      if (res.data.length === 0) {
+        this.setState({ emptyFriends: true })
+      }
+    })
   }
   updateReduxFriends = () => {
-    axios.get(`/api/friends/redux/${this.props.loggedInId}`)
-  .then(res => {
-   this.props.updateFriends(res.data)
+    axios.get(`/api/friends/redux/${this.props.loggedInId}`).then(res => {
+      this.props.updateFriends(res.data)
+    })
   }
-  )}
+  // Everything below this line is trying to convert request to SFC
+
+  confirmFriend = id => {
+    axios.put(`/api/friend/request/${id}`).then(res => {
+      this.setState({ requestList: res.data.friends })
+      this.getCurrentFriends()
+      Swal.fire({
+        icon: 'success',
+        title: res.data.message,
+        showConfirmButton: false,
+        timer: 1000
+      })
+    })
+  }
+
+  denyFriend = id => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will remove this request.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, remove it!',
+      cancelButtonText: 'No, keep it'
+    }).then(result => {
+      if (result.value) {
+        axios.delete(`/api/friend/request/${id}`).then(res => {
+          this.setState({ requestList: res.data })
+          this.updateReduxFriends()
+          Swal.fire({
+            icon: 'success',
+            title: 'This request has been removed.',
+            showConfirmButton: false,
+            timer: 1000
+          })
+        })
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire('Cancelled', 'Your connection remains :)', 'error')
+      }
+    })
+  }
+  removeFriend = id => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will remove this connection.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, remove it!',
+      cancelButtonText: 'No, keep it'
+    }).then(result => {
+      if (result.value) {
+        axios.delete(`/api/friends/${id}`).then(res => {
+          this.setState({ friendList: res.data })
+          this.props.updateReduxFriends()
+          Swal.fire({
+            icon: 'success',
+            title: 'Removed!',
+            text: 'Your connection has been removed.',
+            showConfirmButton: false,
+            timer: 1000
+          })
+        })
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire('Cancelled', 'Your connection remains :)', 'error')
+      }
+    })
+  }
+
   render() {
-    console.log(this.state.friends);
     
     return (
       <UserPage>
@@ -73,27 +149,40 @@ class User extends Component {
           userName2={this.state.otherChatter}
           hidden={this.state.privateChat}
         />
-        {this.state.friends.length > 0 ? <FriendList
-          friendList={this.state.friends}
+
+        <FriendList
+          title='Friends'
+          emptyFriends={this.state.emptyFriends}
+          friends={this.props.friends}
+          removeFriend={this.removeFriend}
+          getCurrentFriends={this.getCurrentFriends}
+          userNames={this.state.friendList}
+          updateFriends={this.props.updateFriends}
           updateReduxFriends={this.updateReduxFriends}
           showChat={true}
-          {...this.props}
-          title='Friends'
           showPrivateChat={this.showPrivateChat}
-          userId={this.props.loggedInId}
+          userId={this.props.match.params.user_id}
           remove={true}
-        /> : null}
-        <FriendList
-          getCurrentFriends={this.getCurrentFriends}
-          title='Pending Requests'
-          userId={this.props.loggedInId}
-          showPrivateChat={this.showPrivateChat}
-          requests='true'
-          remove={false}
+          history={{ ...this.props.history }}
         />
+
+        {this.state.requestList.length > 0 ? (
+          <RequestList
+            history={{...this.props.history}}
+            emptyRequests={this.state.emptyRequests}
+            denyFriend={this.denyFriend}
+            requestList={this.state.requestList}
+            confirmFriend={this.confirmFriend}
+            userId={this.props.loggedInId}
+            showPrivateChat={this.showPrivateChat}
+            requests='true'
+            remove={false}
+          />
+        ) : null}
+
         <UserSearch
-          userId={this.props.loggedInId}
           friends={this.props.friends}
+          userId={this.props.loggedInId}
           zip={this.props.zip}
           searchOnly={false}
         />

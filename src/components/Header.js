@@ -48,18 +48,12 @@ class Header extends Component {
         })
         this.props.setUser(res.data.user)
         this.props.history.push(`/user/${this.props.userId}`)
-        Swal.fire({
-          icon: 'success',
-          title: res.data.message,
-          showConfirmButton: false,
-          timer: 1000
-        })
+        
       })
       .catch(err => {
-        console.log(err)
         Swal.fire({
           icon: 'error',
-          // title: err.data.message,
+          title: err.response.data.message,
           showConfirmButton: true
         })
       })

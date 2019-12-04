@@ -21,19 +21,33 @@ class Member extends Component {
       city: '',
       state: '',
       zip: 0,
-      activities: []
+      activities: [],
+      emptyFriends: false,
+      userNames: []
     }
   }
 
   componentDidMount = () => {
+    
+    
      axios.post('/auth/session').then(res => {
-       console.log(res.data.user)
        this.props.setUser(res.data.user)
      })
+     axios.get(`/api/friends/${this.props.match.params.user_id}`)
+     .then(res => {
+       this.setState({ userNames: res.data })
+      if (res.data.length === 0) {
+        this.setState({ emptyFriends: true })
+      }
+      })
+
     if (this.props.match.params.user_id) {
+      console.log(+this.props.match.params.user_id)
       axios
       .get(`api/member/${+this.props.match.params.user_id}`)
       .then(res => {
+        console.log(res)
+        
         this.setState({
           userId: res.data.id,
           email: res.data.email,
@@ -50,12 +64,6 @@ class Member extends Component {
       )
     }
   }
-  // componentDidUpdate = () => {
-  //   console.log(this.props.reduxState)
-  //   axios.post('/auth/session', {user:{...this.props.reduxState}}).then(res => {
-  //     this.props.setUser(res.data.user)
-  //   })
-  // }
 
   render() {
     return (
@@ -74,10 +82,13 @@ class Member extends Component {
           userId={this.props.match.params.user_id}
         />
         <FriendList
+          emptyFriends={this.state.emptyFriends}
+          friends={this.props.friends}
+          userNames={this.state.userNames}
           title={'Friends'}
           showChat={false}
           {...this.props}
-          userId={this.props.match.params.user_id}
+          userId={this.props.userId}
         />
         <EventList userId={this.props.match.params.user_id} />
       </MemberPage>
@@ -90,7 +101,8 @@ function mapStateToProps(reduxState) {
     reduxState: reduxState,
     profilePic: reduxState.profilePic,
     firstName: reduxState.firstName,
-    userId: reduxState.userId
+    userId: reduxState.userId,
+    friends: reduxState.friends
   }
 }
 

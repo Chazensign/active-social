@@ -31,23 +31,21 @@ class UserSearch extends Component {
 
   userSearch = async () => {
     this.setState({ loading: true })
-    console.log(this.props.friends, this.props.userId)
     let searchedUsers = []
     let returnedUsers = await axios
       .get(`/api/search?zip=${this.state.zip}&range=${this.state.range}`)
       .catch(err => console.log(err))
-
+    if (this.props.friends) {
     for (let i = 0; i < this.props.friends.length; i++) {
       for (let j = returnedUsers.data.length - 1; j >= 0; j--) {
         if (
-          this.props.friends[i].second_id ===
-            returnedUsers.data[j].user.user_id ||
           this.props.userId === returnedUsers.data[j].user.user_id
         ) {
           returnedUsers.data.splice(j, 1)
         }
       }
     }
+  }
     if (returnedUsers.length === 0) {
       return Swal.fire({
         icon: 'error',
@@ -165,7 +163,7 @@ class UserSearch extends Component {
                 )
               : this.state.searchResults.map(user => {
                   return (
-                    <div key={user.id} id={user.id} className='result'>
+                    <div key={user.id} className='result'>
                       <Link to={`/member/${user.id}`}>
                         <div className='result-name-img'>
                           <img src={user.profile_img} alt='' />
@@ -174,16 +172,18 @@ class UserSearch extends Component {
                           </div>
                         </div>
                       </Link>
-                      {!this.props.searchOnly && (
-                        <button
-                          className='connect'
-                          onClick={() => {
-                            this.hideConnectedUser(user.id)
-                            this.addFriend(user.id)
+                      {!this.props.searchOnly &&
+                        !this.props.friends.includes(user.id) && (
+                          <button
+                            id={user.id}
+                            className='connect'
+                            onClick={() => {
+                              this.hideConnectedUser(user.id)
+                              this.addFriend(user.id)
                             }}>
-                          Connect
-                        </button>
-                      )}
+                            Connect
+                          </button>
+                        )}
                     </div>
                   )
                 })}

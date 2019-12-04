@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import io from 'socket.io-client'
 import {connect } from 'react-redux'
 import styled from 'styled-components'
+import Swal from 'sweetalert2'
 
 class Chat extends Component {
   constructor() {
@@ -56,6 +57,7 @@ class Chat extends Component {
   }
 
   sendMessage = () => {
+    if (this.props.loggedInId !== 0) {
     this.socket.emit('message sent', {
       message: this.state.input,
       roomId: this.state.roomId,
@@ -64,6 +66,14 @@ class Chat extends Component {
     this.setState({
       input: ''
     })
+  }else {
+    Swal.fire({
+      icon: 'error',
+      title: 'No User',
+      text: 'Please Login or Create Account.',
+      showConfirmButton: true
+    })
+  }
   }
 
   updateMessages = messages => {

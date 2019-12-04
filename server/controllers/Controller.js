@@ -81,9 +81,13 @@ module.exports = {
     db.get_all_activities().then(result => res.status(200).send(result))
   },
   getMemeberInfo: async (req, res) => {
+    console.log(req.params.id)
+    
     const db = await req.app.get('db')
     db.get_member_info(req.params.id).then(result => {
       const userInfo = result[0]
+      console.log(userInfo)
+      
       res.status(200).send(userInfo)
     })
   },
@@ -154,8 +158,9 @@ module.exports = {
     db.add_friend(
       req.params.id,
       req.session.user.userId,
-      false
-    ).then((data) => res.status(200).send({ message: 'Request Sent', friends: data }))
+      false,
+      req.params.id
+    ).then(() => res.status(200).send({ message: 'Request Sent' }))
     .catch(err => res.sendStatus(500))
   },
   getFriendRequests: async (req, res) => {
@@ -176,14 +181,13 @@ module.exports = {
     )
   },
   removeFriend: async (req, res) => {
-    console.log(req.params.id, req.session.user.userId)
     const db = await req.app.get('db')
-    db.remove_friend(req.params.id, req.session.user.userId).then(result =>
+    db.remove_friend(req.params.id, req.session.user.userId).then(result => {
       res.status(200).send(result)
+    }
     )
   },
   updateUser: async (req, res) => {
-    console.log(req.body)
     const { firstName, lastName, email, city, state, zip, userId } = req.body
     const db = await req.app.get('db')
     db.update_user_info(firstName, lastName, email, city, state, zip, userId)
