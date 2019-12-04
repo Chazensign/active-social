@@ -154,9 +154,9 @@ module.exports = {
     db.add_friend(
       req.params.id,
       req.session.user.userId,
-      false,
-      req.params.id
-    ).then(() => res.status(200).send({ message: 'Request Sent' }))
+      false
+    ).then((data) => res.status(200).send({ message: 'Request Sent', friends: data }))
+    .catch(err => res.sendStatus(500))
   },
   getFriendRequests: async (req, res) => {
     const db = await req.app.get('db')
@@ -165,8 +165,8 @@ module.exports = {
   },
   confirmFriend: async (req, res) => {
     const db = await req.app.get('db')
-    db.confirm_friend(req.params.id, req.session.user.userId).then(() =>
-      res.status(200).send({ message: 'Connection Confirmed' })
+    db.confirm_friend(req.params.id, req.session.user.userId).then(result =>
+      res.status(200).send({ message: 'Connection Confirmed', friends: result })
     )
   },
   denyFriend: async (req, res) => {
@@ -226,5 +226,13 @@ module.exports = {
       )
     })
     res.status(201).send({message: 'Interests Added.'})
+  },
+  reduxFriends: async (req, res) => {
+    const { userId } = req.params
+    console.log(userId)
+    
+    const db = await req.app.get('db')
+    const friends = await db.get_redux_friends(userId)
+    res.status(200).send(friends)
   }
 }

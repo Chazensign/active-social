@@ -116,7 +116,6 @@ class Wizard extends Component {
     })
   }
   updateProfile = async () => {
-    console.log('hitting wiz fn')
     const {
       email,
       password,

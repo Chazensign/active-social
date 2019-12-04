@@ -6,9 +6,10 @@ import FriendList from './FriendList'
 import EventList from './EventList'
 import ActivitiesList from './ActivitiesList'
 import ChatModal from './ChatModal'
-import { setUser } from '../ducks/reducer'
+import { setUser, updateFriends } from '../ducks/reducer'
 import UserSearch from './UserSearch'
 import styled from 'styled-components'
+import axios from 'axios'
 
 class User extends Component {
   constructor(props) {
@@ -17,14 +18,21 @@ class User extends Component {
       otherChatter: '',
       otherChatterId: 0,
       aboutContent: '',
-      privateChat: false
+      privateChat: false,
+      friends: []
     }
   }
 
-  componentWillMount = () => {
+  componentDidMount = () => {
     if (+this.props.match.params.user_id !== +this.props.loggedInId) {
       this.props.history.push(`/member/${this.props.match.params.user_id}`)
     }
+    axios.post('/auth/session').then(res => {
+      this.props.setUser(res.data.user)
+    })
+    console.log('component mounted')
+    this.getCurrentFriends()
+   
   }
 
   showPrivateChat = (id, name) => {
@@ -34,8 +42,20 @@ class User extends Component {
   hidePrivateChat = () => {
     this.setState({ privateChat: false })
   }
-
+  getCurrentFriends = () => {
+     axios.get(`/api/friends/${this.props.loggedInId}`).then(res => {
+       console.log(res.data)
+       this.setState({ friends: res.data })
+     })
+  }
+  updateReduxFriends = () => {
+    axios.get(`/api/friends/redux/${this.props.loggedInId}`)
+  .then(res => {
+   this.props.updateFriends(res.data)
+  }
+  )}
   render() {
+    console.log(this.state.friends);
     
     return (
       <UserPage>
@@ -53,15 +73,18 @@ class User extends Component {
           userName2={this.state.otherChatter}
           hidden={this.state.privateChat}
         />
-        <FriendList
+        {this.state.friends.length > 0 ? <FriendList
+          friendList={this.state.friends}
+          updateReduxFriends={this.updateReduxFriends}
           showChat={true}
           {...this.props}
           title='Friends'
           showPrivateChat={this.showPrivateChat}
           userId={this.props.loggedInId}
           remove={true}
-        />
+        /> : null}
         <FriendList
+          getCurrentFriends={this.getCurrentFriends}
           title='Pending Requests'
           userId={this.props.loggedInId}
           showPrivateChat={this.showPrivateChat}
@@ -94,7 +117,7 @@ function mapStateToProps(reduxState) {
   }
 }
 
-export default connect(mapStateToProps, { setUser })(User)
+export default connect(mapStateToProps, { setUser, updateFriends })(User)
 
 const UserPage = styled.div`
   @import url('https://fonts.googleapis.com/css?family=Noto+Sans:700&display=swap');

@@ -4,8 +4,13 @@ import styled from 'styled-components'
 import Swal from 'sweetalert2'
 import { connect } from 'react-redux'
 import ReactLoading from 'react-loading'
-
+import { updateFriends } from '../ducks/reducer'
 class FriendList extends Component {
+  static getDerivedStateFromProps = (props, state) => {
+    if (props.friendList !== state.friends) return { 
+      friends: props.friendList
+    }
+  }
   constructor(props) {
     super(props)
     this.state = {
@@ -18,35 +23,33 @@ class FriendList extends Component {
         this.setState({ friends: res.data })
       })
     } else if (this.props.userId) {
-      axios
-        .get(`/api/friends/${this.props.userId}`)
-        .then(res => this.setState({ friends: res.data }))
+      console.log(this.props.friendList)
+      this.setState({ friends: this.props.friendList })
     } else if (this.props.userNames) {
       this.setState({ friends: [...this.props.userNames] })
     }
   }
-
   goToUserPage = id => {
     this.props.history.push(`/member/${id}`)
     window.location.reload(true)
   }
-
   addFriend = id => {
-    axios.post(`/api/friends/${id}`)
+    axios
+      .post(`/api/friends/${id}`)
+      .then(res => this.props.updateFriends(res.data.friends))
   }
-
   confirmFriend = id => {
     axios.put(`/api/friend/request/${id}`).then(res => {
-      this.props.updateFriends()
-      Swal.fire({
-        icon: 'success',
-        title: res.data.message,
-        showConfirmButton: false,
-        timer: 1000
-      })
+      this.setState({ friends: res.data.friends })
+      this.props.updateFriends(res.data.friends)
+    Swal.fire({
+      icon: 'success',
+      title: res.data.message,
+      showConfirmButton: false,
+      timer: 1000
+    })
     })
   }
-
   denyFriend = id => {
     Swal.fire({
       title: 'Are you sure?',
@@ -83,14 +86,20 @@ class FriendList extends Component {
       if (result.value) {
         axios.delete(`/api/friends/${id}`).then(res => {
           this.setState({ friends: res.data })
-          Swal.fire('Removed!', 'Your connection has been removed.', 'success')
+          this.props.updateReduxFriends()
+          Swal.fire({
+            icon: 'success',
+            title: 'Removed!',
+            text: 'Your connection has been removed.',
+            showConfirmButton: false,
+            timer: 1000
+          })
         })
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire('Cancelled', 'Your connection remains :)', 'error')
       }
     })
   }
-
   render() {
     return (
       <FriendContainer>
@@ -162,12 +171,11 @@ function mapStateToProps(reduxState) {
     profilePic: reduxState.profilePic,
     firstName: reduxState.firstName,
     lastName: reduxState.lastName,
-    userId: reduxState.userId
+    userId: reduxState.userId,
+    friends: reduxState.friends
   }
 }
-
-export default connect(mapStateToProps)(FriendList)
-
+export default connect(mapStateToProps, { updateFriends })(FriendList)
 const FriendContainer = styled.div`
   height: 450px;
   width: 300px;

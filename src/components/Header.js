@@ -25,22 +25,11 @@ class Header extends Component {
   }
 
   componentDidMount = () => {
-    console.log('header mounted');
-    
-    axios
-      .post('/auth/session')
-      .then(res => {
-        this.props.setUser(res.data.user)
-      })
+    axios.post('/auth/session').then(res => {
+      this.props.setUser(res.data.user)
+    })
   }
-  // componentDidUpdate = () => {
-  //   console.log(this.props.reduxState)
-  //   axios
-  //     .post('/auth/session')
-  //     .then(res => {
-  //       this.props.setUser(res.data.user)
-  //     })
-  // }
+
   handleChange = trg => {
     this.setState({ [trg.name]: trg.value })
   }
@@ -52,7 +41,11 @@ class Header extends Component {
         password: this.state.password
       })
       .then(res => {
-        this.setState({ hidden: true })
+        this.setState({
+          hidden: true,
+          email: '',
+          password: ''
+        })
         this.props.setUser(res.data.user)
         this.props.history.push(`/user/${this.props.userId}`)
         Swal.fire({
@@ -63,9 +56,10 @@ class Header extends Component {
         })
       })
       .catch(err => {
+        console.log(err)
         Swal.fire({
           icon: 'error',
-          title: err.response.data.message,
+          // title: err.data.message,
           showConfirmButton: true
         })
       })
@@ -202,7 +196,9 @@ function mapStateToProps(reduxState) {
   }
 }
 
-export default withRouter(connect(mapStateToProps, {setUser, clearUser})(Header))
+export default withRouter(
+  connect(mapStateToProps, { setUser, clearUser })(Header)
+)
 
 const FunctionalHeader = styled.div`
   header {

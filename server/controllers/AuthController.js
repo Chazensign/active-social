@@ -29,11 +29,10 @@ module.exports = {
     const hash = bcrypt.hashSync(password, salt)
     db.add_hash(userId, hash)
     req.session.user = {
-      userId: userId,
-      profilePic: user.profile_img,
-      firstName: user.first_name,
-      city: city,
-      state: state,
+      firstName: first_name,
+      lastName: last_name,
+      profilePic: profile_img,
+      userId: user_id,
       zip: zip
     }
     db.add_address(city, state, zip, userId)
@@ -88,7 +87,7 @@ module.exports = {
   },
 
   getSession: (req, res) => {
-    if (req.session.user.firstName) {
+    if (req.session.user) {
       const user = {...req.session.user}
       return res.status(200).send({user: user})
     }

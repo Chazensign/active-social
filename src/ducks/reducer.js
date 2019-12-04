@@ -1,3 +1,5 @@
+
+
 const initialState = {
   userId: 0,
   firstName: '',
@@ -13,6 +15,7 @@ const initialState = {
 
 const SET_USER = 'SET_USER'
 const CLEAR_USER = 'CLEAR_USER'
+const UPDATE_FRIENDS = 'UPDATE_FRIENDS'
 
 export function setUser(userObj) {
   return {
@@ -28,6 +31,13 @@ export function clearUser() {
   }
 }
 
+export function updateFriends(friends) {
+    return {
+      type: UPDATE_FRIENDS,
+      payload: friends
+    }
+}
+
 
 export default function reducer(state = initialState, action) {
   switch (action.type) {
@@ -35,6 +45,8 @@ export default function reducer(state = initialState, action) {
       return { ...state, ...action.payload }
     case CLEAR_USER:
       return {...action.payload}
+      case UPDATE_FRIENDS:
+        return {...state, friends: action.payload}
     default:
       return state
   }

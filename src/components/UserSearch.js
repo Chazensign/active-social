@@ -31,7 +31,7 @@ class UserSearch extends Component {
 
   userSearch = async () => {
     this.setState({ loading: true })
-    console.log(this.props.friends)
+    console.log(this.props.friends, this.props.userId)
     let searchedUsers = []
     let returnedUsers = await axios
       .get(`/api/search?zip=${this.state.zip}&range=${this.state.range}`)
@@ -98,7 +98,7 @@ class UserSearch extends Component {
     let userDiv = document.getElementById(id)
     userDiv.setAttribute("style", "display: none !important;");
   }
-
+  
   render() {
     
     return (
