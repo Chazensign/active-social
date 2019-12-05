@@ -20,7 +20,8 @@ class Header extends Component {
       display: false,
       loginDisp: false,
       hidden: true,
-      menuDisp: 'none'
+      hiddenMenu: true,
+      menuDisp: false
     }
   }
 
@@ -48,7 +49,6 @@ class Header extends Component {
         })
         this.props.setUser(res.data.user)
         this.props.history.push(`/user/${this.props.userId}`)
-        
       })
       .catch(err => {
         Swal.fire({
@@ -89,6 +89,27 @@ class Header extends Component {
   }
   showMenu = value => {
     this.setState({ menuDisp: value })
+    this.login.classList.remove('hide-back')
+    this.login.classList.add('show-back')
+    this.setState({ hiddenMenu: false }, () => {
+      document.addEventListener('click', this.closeMenu)
+    })
+  }
+  closeMenu = (event) => {
+    let location = document.getElementsByClassName('show-back')
+    location = location[0]
+    if (event.target === location || event.target === 'go') {
+      this.login.classList.remove('hide-back')
+      this.login.classList.add('return-back')
+      setTimeout(() => {
+        this.setState({ hiddenMenu: true, menuDisp: false }, () => {
+          document.removeEventListener('click', this.closeMenu)
+        })
+      }, 400)
+    }
+  }
+  assignMenu = element => {
+    this.menu = element
   }
   logout = () => {
     axios.delete('/auth/logout').then(res => {
@@ -152,16 +173,18 @@ class Header extends Component {
           </div>
           {!this.props.firstName ? (
             <DropDownMenu
-              showMenu={this.showMenu}
-              menuDisp={this.state.menuDisp}
+              assignMenu={this.assignMenu}
+              closeMenu={this.closeMenu}
+              hiddenMenu={this.state.hiddenMenu}
               showLogin={this.showLogin}
             />
           ) : (
             <UserDropDown
+              assignMenu={this.assignMenu}
+              closeMenu={this.closeMenu}
+              hiddenMenu={this.state.hiddenMenu}
               logout={this.logout}
               loggedInId={this.props.userId}
-              showMenu={this.showMenu}
-              menuDisp={this.state.menuDisp}
             />
           )}
         </header>
@@ -270,7 +293,13 @@ const FunctionalHeader = styled.div`
       margin-right: 80px;
       font-size: 30px;
     }
+    .initals-bars {
+      display: initial;
+    }
     .login-nav {
+      display: none;
+    }
+    .logout {
       display: none;
     }
     .bars {

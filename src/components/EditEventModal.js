@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import axios from 'axios'
+import React, { Component } from 'react';
 import styled from 'styled-components'
+import axios from 'axios'
 import Swal from 'sweetalert2'
 
-class CreateEvent extends Component {
+class EditEventModal extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -16,26 +16,51 @@ class CreateEvent extends Component {
       state: '',
       zip: 0,
       img: '',
-      activId: 0
+      eventId: 0,
+      userId: 0
     }
   }
+
   componentDidMount = () => {
-    this.setState({ activId: this.props.activId })
+    const {
+      date,
+      ev_title,
+      content,
+      street,
+      city,
+      state,
+      event_zip,
+      img,
+      event_id,
+      user_id
+    } = this.props.event
+    this.setState({
+      eventDate: date,
+      title: ev_title,
+      content: content,
+      street: street,
+      city: city,
+      state: state,
+      zip: event_zip,
+      img: img,
+      eventId: event_id,
+      userId: user_id
+    })
   }
   handleChange = trg => {
     this.setState({ [trg.name]: trg.value })
   }
-  submitEvent = () => {
-    axios.post('/api/events', this.state).then(res => {
-      this.props.updateEvents(res.data)
+  editEvent = () => {
+    axios.put('/api/events', this.state).then(res => {
+      this.props.updateEvents(res)
       Swal.fire({
         icon: 'success',
-        title: res.data.message,
+        title: 'Event Updated',
         showConfirmButton: false,
         timer: 1000
       })
     })
-    this.props.showAddEvent()
+    this.props.dispEventModal()
     this.setState({
       dateLimit: '',
       eventDate: '',
@@ -50,42 +75,51 @@ class CreateEvent extends Component {
     })
   }
 
-  getDate = (input) => {
-  
+  getDate = input => {
+    
     let morningOrNight = ''
     function ISODateString(d) {
       function pad(n) {
         return n < 10 ? '0' + n : n
       }
       function fromMill(h) {
-         if (h > 13) {
-           amPm('pm')
-           return h - 12 
-         }
-         else {
-           amPm('am')
-          return h
-         }
+        
+        if (h === 24) {
+            amPm('pm')
+            return h -12
+        }else if (h > 12) {
+          amPm('pm')
+          return h - 12
+        }else if (h === 12) {
+            amPm('pm')
+            return h
+          }  else {
+            amPm('am')
+            return h
+          }
       }
       function amPm(input) {
         morningOrNight = input
       }
-      let date = pad(d.getUTCMonth() + 1) +
-      '/' +
-      pad(d.getUTCDate()) +
-      '/' +
-      d.getUTCFullYear()
-      
-      let time = fromMill(d.getUTCHours() + 5) +
-      ':' +
-      pad(d.getUTCMinutes()) +
-      ` ${morningOrNight}`
-      return (
-        `${date} ${time}`
-      )
+      let date =
+        pad(d.getUTCMonth() + 1) +
+        '/' +
+        pad(d.getUTCDate()) +
+        '/' +
+        d.getUTCFullYear()
+
+      let time =
+        fromMill(d.getHours()).toString() +
+        ':' +
+        pad(d.getUTCMinutes()) +
+        ` ${morningOrNight}`
+      return `${date} ${time}`
     }
     const d = new Date(input)
+    
+    
     const finalDate = ISODateString(d)
+    
     this.setState({
       eventDate: finalDate
     })
@@ -102,21 +136,20 @@ class CreateEvent extends Component {
       zip,
       img
     } = this.state
-    return this.props.addEvent ? (
-      <EventCreator>
+
+    return this.props.showEventModal ? (
+      <EditEventModalOuter>
         <div className='create-modal'>
           <div className='event-li'>
             <div className='title-date-img'>
               <div>
-                <h4>{title}</h4>
-                <h2>
-                  {eventDate}
-                </h2>
-                <h6>
+                <h2>{title}</h2>
+                <h5>{eventDate}</h5>
+                <h5>
                   {city},{state}
-                </h6>
+                </h5>
               </div>
-              <img src={img} alt='' />
+              <img className='event-img' src={img} alt='' />
             </div>
             <div className='p-button'>
               <p>{content}</p>
@@ -185,18 +218,18 @@ class CreateEvent extends Component {
             type='text'
           />
           <div className='button-cont'>
-            <button onClick={() => this.submitEvent()}>Submit</button>
-            <button onClick={this.props.showAddEvent}>Cancel</button>
+            <button onClick={() => this.editEvent()}>Submit</button>
+            <button onClick={() => this.props.dispEventModal()}>Cancel</button>
           </div>
         </div>
-      </EventCreator>
+      </EditEventModalOuter>
     ) : null
   }
 }
+ 
+export default EditEventModal;
 
-export default CreateEvent
-
-const EventCreator = styled.div`
+const EditEventModalOuter = styled.div`
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.6);
@@ -295,9 +328,9 @@ const EventCreator = styled.div`
     border-radius: 4px;
     box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
   }
-  .event-li img {
-    width: 100px;
-    height: 100px;
+  .event-img {
+    width: 150px;
+    height: 150px;
     overflow: hidden;
     border-radius: 12px;
   }
@@ -373,7 +406,7 @@ const EventCreator = styled.div`
     }
     .input-title {
       margin-left: 6px;
-    } 
+    }
     h2 {
       margin: 0 5px 10px 5px;
     }

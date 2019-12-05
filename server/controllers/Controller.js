@@ -81,13 +81,9 @@ module.exports = {
     db.get_all_activities().then(result => res.status(200).send(result))
   },
   getMemeberInfo: async (req, res) => {
-    console.log(req.params.id)
-    
     const db = await req.app.get('db')
     db.get_member_info(req.params.id).then(result => {
       const userInfo = result[0]
-      console.log(userInfo)
-      
       res.status(200).send(userInfo)
     })
   },
@@ -216,7 +212,6 @@ module.exports = {
       .catch(err => console.log(err))
   },
   addActivs: async (req, res) => {
-    console.log('hitting controller')
     const db = await req.app.get('db')
     const { userId } = req.session.user
     const { userActivs } = req.body
@@ -233,10 +228,44 @@ module.exports = {
   },
   reduxFriends: async (req, res) => {
     const { userId } = req.params
-    console.log(userId)
-    
     const db = await req.app.get('db')
     const friends = await db.get_redux_friends(userId)
     res.status(200).send(friends)
+  },
+  deleteEvent: async (req, res) => {
+    const { userId } = req.session.user
+    const { eventId } = req.params
+    const db = await req.app.get('db')
+    db.delete_event(eventId, userId)
+    .then(result => res.status(200).send(result))
+  },
+  editEvent: async (req, res) => {
+    const {
+      eventId,
+      title,
+      img,
+      content,
+      eventDate,
+      street,
+      city,
+      state,
+      zip,
+      userId
+    } = req.body
+    const db = await req.app.get('db')
+    db.edit_event(
+      eventId,
+      title,
+      img,
+      content,
+      eventDate,
+      street,
+      city,
+      state,
+      zip,
+      userId
+    ).then(result => {
+      res.status(200).send(result)
+    })
   }
 }

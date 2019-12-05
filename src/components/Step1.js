@@ -128,7 +128,7 @@ const Step1 = props => {
 export default Step1
 
 const Step1Outer = styled.div`
-  position: absolute;
+  position: fixed;
   top: 50%;
   right: 50%;
   transform: translate(300px, -300px);

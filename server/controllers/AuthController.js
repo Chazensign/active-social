@@ -29,22 +29,24 @@ module.exports = {
     const hash = bcrypt.hashSync(password, salt)
     db.add_hash(userId, hash)
     req.session.user = {
-      firstName: first_name,
-      lastName: last_name,
-      profilePic: profile_img,
-      userId: user_id,
+      firstName: firstName,
+      lastName: lastName,
+      profilePic: profilePic,
+      userId: userId,
       zip: zip
     }
+    userActivs.forEach(activ => {
+      db.add_interests(activ.activId, userId, activ.activContent, activ.skillLevel, activ.lessons)
+    })
     db.add_address(city, state, zip, userId)
     res
       .status(201)
       .send({
         message: 'Account created, you are logged in.',
-        user: req.session.user
+        user: req.session.user,
+        userActivs: userActivs
       })
-      userActivs.forEach(activ => {
-        db.add_interests(activ.activId, userId, activ.activContent, activ.skillLevel, activ.lessons);
-      })
+
   },
   login: async (req, res) => {
     const { email, password } = req.body

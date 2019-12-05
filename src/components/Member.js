@@ -42,12 +42,10 @@ class Member extends Component {
       })
 
     if (this.props.match.params.user_id) {
-      console.log(+this.props.match.params.user_id)
       axios
       .get(`api/member/${+this.props.match.params.user_id}`)
       .then(res => {
-        console.log(res)
-        
+       
         this.setState({
           userId: res.data.id,
           email: res.data.email,
@@ -90,7 +88,7 @@ class Member extends Component {
           {...this.props}
           userId={this.props.userId}
         />
-        <EventList userId={this.props.match.params.user_id} />
+        <EventList memberId={this.props.match.params.user_id} />
       </MemberPage>
     )
   }
@@ -115,11 +113,18 @@ const MemberPage = styled.div`
   align-items: flex-start;
   justify-content: space-around;
   width: 100vw;
+  min-height: 100vh;
   background: #ebebeb;
   .user-name {
     width: 100vw;
     text-align: center;
     font-size: 58px;
     font-family: 'Noto Sans', sans-serif;
+  }
+  @media (max-width: 800px) {
+    .user-name {
+      font-size: 48px;
+      margin: 20px 0;
+    }
   }
 `

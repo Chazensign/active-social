@@ -66,7 +66,7 @@ class ActivityView extends Component {
               userNames={this.state.instructors}
             />
           ) : null}
-          <EventList activId={this.props.match.params.activ_id} />
+          <EventList loggedInId={ this.props.loggedInId } usersEvents={this.props.events} activId={this.props.match.params.activ_id} />
         </ActivityPage>
       )
   }

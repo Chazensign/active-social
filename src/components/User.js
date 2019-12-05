@@ -116,7 +116,7 @@ class User extends Component {
       if (result.value) {
         axios.delete(`/api/friends/${id}`).then(res => {
           this.setState({ friendList: res.data })
-          this.props.updateReduxFriends()
+          this.updateReduxFriends()
           Swal.fire({
             icon: 'success',
             title: 'Removed!',
@@ -188,7 +188,7 @@ class User extends Component {
         />
         <ActivitiesList addActiv={true} userId={this.props.loggedInId} />
         <Chat userId={this.props.loggedInId} userName={this.props.firstName} />
-        <EventList userId={this.props.match.params.user_id} />
+        <EventList usersEvents={this.props.events} userId={this.props.match.params.user_id} />
       </UserPage>
     )
   }
@@ -251,6 +251,9 @@ const UserPage = styled.div`
   @media (max-width: 800px) {
     .update-button {
       display: none;
+    }
+    .username {
+      font-size: 48px;
     }
   }
 `

@@ -84,7 +84,7 @@ class Wizard extends Component {
       .catch(err =>
         Swal.fire({
           icon: 'error',
-          title: err.data.message,
+          title: err.response.data.message,
           showConfirmButton: false,
           timer: 1000
         })
@@ -152,7 +152,6 @@ class Wizard extends Component {
     this.props.history.push(`/user/${this.props.userId}`)
   }
   addToUserActivs = () => {
-    console.log('hitting wizard')
     axios.post('/api/activities', {userActivs: this.state.userActivs}).then(res =>
       Swal.fire({
         icon: 'success',
