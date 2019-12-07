@@ -21,7 +21,7 @@ class EventList extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.userId) {
+    if (this.props.userId && !this.props.activId) {
       axios
         .get(`/api/events/${this.props.userId}`)
         .then(res => {
@@ -45,22 +45,34 @@ class EventList extends Component {
     }
   }
   showAddEvent = () => {
-    this.setState({ addEvent: !this.state.addEvent })
+    if (this.props.userId > 0) {
+      this.setState({ addEvent: !this.state.addEvent })
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'No User',
+        text: 'Please Login or Create Account.',
+        showConfirmButton: true
+      })
+    }
   }
   updateEvents = res => {
     this.setState({ events: res.data })
   }
   addEventToUser = id => {
-    if (this.props.loggedInId > 0) {
-    axios.post(`/api/user/events/${id}`).then(res =>
-      Swal.fire({
-        icon: 'success',
-        title: res.data.message,
-        showConfirmButton: false,
-        timer: 1000
+    console.log(this.props.userId)
+
+    if (this.props.userId > 0) {
+      axios.post(`/api/user/events/${id}`).then(res => {
+        this.props.setUser(res.data)
+        Swal.fire({
+          icon: 'success',
+          title: res.data.message,
+          showConfirmButton: false,
+          timer: 1000
+        })
       })
-    )
-    }else{
+    } else {
       Swal.fire({
         icon: 'error',
         title: 'No User',
@@ -70,8 +82,17 @@ class EventList extends Component {
     }
   }
 
-  deleteEvent = (id) => {
-       Swal.fire({
+  unfollowEvent = id => {
+    axios
+      .delete(`/api/user/events/${id}`)
+      .then(res => {
+        this.setState({ events: res.data })
+      })
+      .catch(err => console.log(err))
+  }
+
+  deleteEvent = id => {
+    Swal.fire({
       title: 'Are you sure?',
       text: 'You will delete this event.',
       icon: 'warning',
@@ -90,22 +111,19 @@ class EventList extends Component {
             timer: 1000
           })
         })
-        } else if (result.dismiss === Swal.DismissReason.cancel) {
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire('Cancelled', 'Your event remains :)', 'error')
       }
-    }
-    )
+    })
   }
-  dispEditEventModal = (index) => {
-    this.setState({ 
+  dispEditEventModal = index => {
+    this.setState({
       showEditEventModal: !this.state.showEditEventModal,
       editEvent: this.state.events[index]
-    });
+    })
   }
 
-  dispEventModal = (index) => {
-    console.log('dispEventModal', index);
-    
+  dispEventModal = index => {
     this.setState({
       showEventModal: !this.state.showEventModal,
       event: this.state.events[index]
@@ -113,50 +131,59 @@ class EventList extends Component {
   }
 
   render() {
-   
+    
     return (
       <>
         <OuterEvents>
-          <h2 className='title'>Events</h2>
-          {this.props.activId ? (
-            <button className='add-event' onClick={() => this.showAddEvent()}>
-              Create New Event
-            </button>
-          ) : null}
+          <h2 className='title'>
+            Events
+            {this.props.activId ? (
+              <button className='add-event' onClick={() => this.showAddEvent()}>
+                Create New Event
+              </button>
+            ) : null}
+          </h2>
+
           {!this.state.events ? (
             <ReactLoading color={'grey'} height={'100px'} width={'100px'} />
           ) : (
             this.state.events.map((event, i) => {
               return (
                 <div key={event.event_id} className='event-li'>
-                  <div onClick={() => this.dispEventModal(i)} className='title-date-img'>
-                    <div>
-                      <h2>{event.ev_title}</h2>
-                      <h4>{event.date}</h4>
+                  <div
+                    onClick={() => this.dispEventModal(i)}
+                    className='title-date-img'>
+                    <div className='title-date'>
+                      <h2 className='event-title'>{event.ev_title}</h2>
+                      <p className='date'>{event.date}</p>
                     </div>
                     <div
                       className='event-img'
                       style={{ backgroundImage: `url(${event.img})` }}
                     />
                   </div>
-                  <div className='p-button'>
-                    <p>{event.content}</p>
+                  <div className={this.props.userId ? 'p-button' : 'no-button'}>
+                    <p className='about'>{event.content}</p>
                     {this.props.userId > 0 ? (
-                      this.props.usersEvents.includes(event.event_id) ? (
+                      !this.props.usersEvents.includes(event.event_id) ? (
                         <button
                           className='follow-button'
                           onClick={() => this.addEventToUser(event.event_id)}>
                           Follow
                         </button>
                       ) : (
-                        <button className='follow-button'>Unfollow</button>
+                        <button
+                          onClick={() => this.unfollowEvent(event.event_id)}
+                          className='follow-button'>
+                          Unfollow
+                        </button>
                       )
                     ) : null}
                     {+this.props.userId === event.user_id ? (
                       <>
                         <button
                           id='edit'
-                          onClick={() => this.dispEventModal(i)}>
+                          onClick={() => this.dispEditEventModal(i)}>
                           Edit
                         </button>
                         <button
@@ -183,15 +210,19 @@ class EventList extends Component {
           <EditEventModal
             updateEvents={this.updateEvents}
             event={this.state.editEvent}
-            dispEventModal={this.dispEditEventModal}
             showEditEventModal={this.state.showEditEventModal}
+            dispEventModal={this.dispEditEventModal}
           />
         )}
-        {this.state.showEventModal && 
-        <EventModal 
-          showEventModal={this.state.showEventModal}
-          event={this.state.event}
-        />}
+        {this.state.showEventModal && (
+          <EventModal
+            usersEvents={this.props.usersEvents}
+            addEventToUser={this.addEventToUser}
+            dispEventModal={this.dispEventModal}
+            showEventModal={this.state.showEventModal}
+            event={this.state.event}
+          />
+        )}
       </>
     )
   }
@@ -217,16 +248,23 @@ const OuterEvents = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 1px solid grey;
+    border: 1px solid #b5b5b5;
     border-radius: 5px;
     width: 490px;
     height: 175px;
     display: flex;
     padding: 10px 0;
   }
-  p {
+  .about {
+    box-sizing: border-box;
     width: 160px;
-    margin: 10px 0 0 0;
+    height: 120px;
+    border: 1px solid #b5b5b5;
+    border-radius: 5px;
+    margin: 6px 0 0 0;
+    padding: 2px;
+    overflow: scroll;
+    z-index: 1;
   }
   .title {
     box-sizing: border-box;
@@ -234,7 +272,7 @@ const OuterEvents = styled.div`
     position: sticky;
     top: 0;
     left: 0;
-
+    z-index: 2;
     margin: 1px;
     padding: 5px;
     background: #14396a;
@@ -242,10 +280,13 @@ const OuterEvents = styled.div`
     border-radius: 6px;
     box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
   }
+  .event-title {
+    width: 155px;
+  }
   .event-img {
     max-height: 160px;
     width: 170px;
-    border-radius: 12px;
+    border-radius: 5px;
     background-size: cover;
     background-position: center;
   }
@@ -254,9 +295,22 @@ const OuterEvents = styled.div`
     width: 310px;
     height: 160px;
   }
+  .title-date-img:hover {
+    cursor: pointer;
+  }
+  .title-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .date {
+    width: 110px;
+    margin: 10px;
+  }
   .add-event {
     position: absolute;
-    bottom: 10px;
+    right: 3px;
+    top: 3px;
     box-shadow: inset 0px 1px 0px 0px #bee2f9;
     background: linear-gradient(to bottom, #63b8ee 5%, #468ccf 100%);
     background-color: #63b8ee;
@@ -268,7 +322,7 @@ const OuterEvents = styled.div`
     font-family: Arial;
     font-size: 15px;
     font-weight: bold;
-    padding: 6px 24px;
+    padding: 6px 10px;
     text-decoration: none;
     text-shadow: 0px 1px 0px #7cacde;
   }
@@ -287,7 +341,12 @@ const OuterEvents = styled.div`
     align-items: center;
     justify-content: space-between;
   }
-
+  .no-button p {
+    height: fit-content;
+    max-height: 150px;
+    overflow: scroll;
+    margin: 5px 5px 5px 0;
+  }
   .p-button button {
     padding: 1px 4px;
     margin: 0;
@@ -315,7 +374,6 @@ const OuterEvents = styled.div`
     position: absolute;
     bottom: 10px;
     left: 5px;
-    
   }
   #edit {
     position: absolute;
@@ -333,17 +391,19 @@ const OuterEvents = styled.div`
       width: 290px;
       height: unset;
       flex-wrap: wrap;
-      padding: 0;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 0 0 0;
     }
     .title-date-img {
       height: 120px;
       align-items: center;
+      justify-content: space-between;
       padding: 0 5px;
     }
     .p-button {
       width: 280px;
-      height: unset;
-      min-height: 100px;
+      height: 120px;
       padding: 0 10px;
     }
     #delete {
@@ -352,21 +412,32 @@ const OuterEvents = styled.div`
     #edit {
       left: 120px;
     }
-    h2 {
+    .title-date {
+      height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    h2.event-title {
+      justify-self: flex-start;
+      align-self: flex-start;
+      width: 165px;
       margin: 0 0 10px 0;
     }
     h4 {
+      width: unset;
       margin: 10px 5px;
       font-size: 14px;
       font-weight: normal;
     }
     p {
-      width: auto;
+      width: 275px;
+      max-height: 80px;
       margin: 5px 0;
     }
     .event-img {
-      width: 100px;
-      height: 100px;
+      width: 110px;
+      height: 110px;
     }
   }
 `

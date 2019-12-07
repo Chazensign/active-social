@@ -6,7 +6,7 @@ a {
 .App {
   text-align: center;
   padding-top: 80px;
-  min-height: 100vh;
+  min-height: calc(100vh - 80px);
   width: 100vw;
   display: flex;
   align-items: flex-start;

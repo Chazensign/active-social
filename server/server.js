@@ -5,9 +5,7 @@ const app = express()
 const massive = require('massive')
 const authCtrl = require('./controllers/AuthController')
 const ctrl = require('./controllers/Controller')
-const awsCtrl = require('./AWSS3')
 const session = require('express-session')
-const { DynamoDB } = require('@aws-sdk/client-dynamodb-v2-node')
 socket = require('socket.io')
 
 async function example() {
@@ -24,14 +22,14 @@ massive(CONNECTION_STRING).then(databaseConnection => {
   console.log('Database Connected')
 })
 
-app.use(function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept'
-  )
-  next()
-})
+// app.use(function(req, res, next) {
+//   res.header('Access-Control-Allow-Origin', '*')
+//   res.header(
+//     'Access-Control-Allow-Headers',
+//     'Origin, X-Requested-With, Content-Type, Accept'
+//   )
+//   next()
+// })
 app.use(express.json())
 
 app.use(
@@ -75,13 +73,15 @@ app.get('/api/activity/:id', ctrl.activityPageInfo)
 app.get('/api/events/:userId', ctrl.getUsersEvents)
 app.delete('/api/event/:eventId', ctrl.deleteEvent)
 app.post('/api/user/events/:eventId', ctrl.addEventToUser)
+app.delete('/api/user/events/:eventId', ctrl.unfollowEvent)
 app.put('/api/events', ctrl.editEvent)
 app.post('/api/events', ctrl.addEvent)
+app.post('/api/google/location', ctrl.getEventLocation)
 app.get('/chat', function(req, res) {
   res.status(200).send('hello')
 })
 
-app.get('/api/images', awsCtrl.signedUrl)
+// app.get('/api/images', awsCtrl.signedUrl)
 
 io.on('connection', async socket => {
   console.log('User connected')

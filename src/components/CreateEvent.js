@@ -50,42 +50,48 @@ class CreateEvent extends Component {
     })
   }
 
-  getDate = (input) => {
-  
+  getDate = input => {
     let morningOrNight = ''
     function ISODateString(d) {
       function pad(n) {
         return n < 10 ? '0' + n : n
       }
       function fromMill(h) {
-         if (h > 13) {
-           amPm('pm')
-           return h - 12 
-         }
-         else {
-           amPm('am')
+        if (h === 24) {
+          amPm('pm')
+          return h - 12
+        } else if (h > 12) {
+          amPm('pm')
+          return h - 12
+        } else if (h === 12) {
+          amPm('pm')
           return h
-         }
+        } else {
+          amPm('am')
+          return h
+        }
       }
       function amPm(input) {
         morningOrNight = input
       }
-      let date = pad(d.getUTCMonth() + 1) +
-      '/' +
-      pad(d.getUTCDate()) +
-      '/' +
-      d.getUTCFullYear()
-      
-      let time = fromMill(d.getUTCHours() + 5) +
-      ':' +
-      pad(d.getUTCMinutes()) +
-      ` ${morningOrNight}`
-      return (
-        `${date} ${time}`
-      )
+      let date =
+        pad(d.getUTCMonth() + 1) +
+        '/' +
+        pad(d.getUTCDate()) +
+        '/' +
+        d.getUTCFullYear()
+
+      let time =
+        fromMill(d.getHours()).toString() +
+        ':' +
+        pad(d.getUTCMinutes()) +
+        ` ${morningOrNight}`
+      return `${date} ${time}`
     }
     const d = new Date(input)
+
     const finalDate = ISODateString(d)
+
     this.setState({
       eventDate: finalDate
     })
@@ -109,9 +115,7 @@ class CreateEvent extends Component {
             <div className='title-date-img'>
               <div>
                 <h4>{title}</h4>
-                <h2>
-                  {eventDate}
-                </h2>
+                <h2 className='date'>{eventDate}</h2>
                 <h6>
                   {city},{state}
                 </h6>
@@ -163,6 +167,7 @@ class CreateEvent extends Component {
           />{' '}
           <div className='input-title'>Date/Time:</div>
           <input
+            required
             type='datetime-local'
             // value={eventDate}
             name='eventDate'

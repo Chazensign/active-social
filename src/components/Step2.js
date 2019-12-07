@@ -111,7 +111,11 @@ const Step2Page = styled.div`
   .explore-style h2 {
     margin-top: 0;
   }
-
+  .add-buttons {
+    width: 230px;
+    display: flex;
+    justify-content: space-between;
+  }
   .checkbox-cont {
     box-sizing: border-box;
     height: 500px;

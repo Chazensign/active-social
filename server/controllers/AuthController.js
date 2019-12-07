@@ -57,32 +57,42 @@ module.exports = {
         .status(404)
         .send({ message: 'Email address not found, try registering.' })
     }
-    const {
-      first_name,
-      last_name,
-      profile_img,
-      user_id,
-      zip
-    } = foundUser[0]
-    const friends = await db.get_redux_friends(user_id)
-    const friendIds = friends.map(friend => friend.second_id)
-    const events = await db.get_redux_events(user_id)
-    const user = {
-      firstName: first_name,
-      lastName: last_name,
-      profilePic: profile_img,
-      userId: user_id,
-      zip: zip,
-      friends: friendIds,
-      events: events
+    
+    const foundHash = await db.find_hash(foundUser[0].id)
+    const result = await bcrypt.compareSync(password, foundHash[0].hash)
+    
+    if (result === true) {
+      const {
+        first_name,
+        last_name,
+        profile_img,
+        user_id,
+        zip
+      } = foundUser[0]
+      const friends = await db.get_redux_friends(user_id)
+      const friendIds = friends.map(friend => friend.second_id)
+      friendIds.push(user_id)
+      let events = await db.get_redux_events(user_id)
+      events = events.map(event => event.event_id)
+      const user = {
+        firstName: first_name,
+        lastName: last_name,
+        profilePic: profile_img,
+        userId: user_id,
+        zip: zip,
+        friends: friendIds,
+        events: events
+      }
+      req.session.user = user
+      res
+        .status(200)
+        .send({
+          message: 'Logged in.',
+          user: { ...user}
+        })
+    } else {
+      res.status(406).send({ message: 'Password incorrect' })
     }
-    req.session.user = user
-    res
-      .status(200)
-      .send({
-        message: 'Logged in.',
-        user: { ...user}
-      })
   },
   logOut: (req, res) => {
     req.session.destroy()

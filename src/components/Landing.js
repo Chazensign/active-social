@@ -15,7 +15,7 @@ export default Landing;
 
 const LandingBack = styled.div`
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 80px);
   
   
   display: flex;

@@ -5,6 +5,7 @@ import ReactLoading from 'react-loading'
 import Swal from 'sweetalert2'
 
 const FriendList = props => {
+  
   const goToUserPage = id => {
     props.history.push(`/member/${id}`)
     window.location.reload(true)
@@ -44,14 +45,14 @@ const FriendList = props => {
                     {!(props.friends.includes(friend.id)) ?
                     <button onClick={() => addFriend(friend.id)}>
                       Connect
-                    </button> :
-                    <button
+                    </button> :(
+                    !(friend.id === props.userId) && <button
                       className='chat-confirm'
                       onClick={() =>
                         props.showPrivateChat(friend.id, friend.first_name)
                       }>
                       Chat
-                    </button> }
+                    </button> )}
                     {props.remove && (
                       <button onClick={() => props.removeFriend(friend.id)}>
                         Remove

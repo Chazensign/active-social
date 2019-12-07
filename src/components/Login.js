@@ -15,22 +15,27 @@ const Login = (props) => {
         <div className='login-box'>
           <h2>Login</h2>
           <div>Email:</div>
-          <input
-            name='email'
-            value={props.email}
-            onChange={e => props.handleChange(e.target)}
-            type='text'
-          />
-          <div>Password:</div>
-          <input
-            name='password'
-            value={props.password}
-            onChange={e => props.handleChange(e.target)}
-            type='password'
-          />
-          <button className='login-submit' onClick={() => props.login()}>
-            Submit
-          </button>
+          <form onSubmit={e => props.login(e)}>
+            <input
+              name='email'
+              value={props.email}
+              onChange={e => props.handleChange(e.target)}
+              type='text'
+            />
+            <div>Password:</div>
+            <input
+              name='password'
+              value={props.password}
+              onChange={e => props.handleChange(e.target)}
+              type='password'
+            />
+            <button
+              type='submit'
+              className='login-submit'
+              onClick={() => props.login()}>
+              Submit
+            </button>
+          </form>
         </div>
       </div>
     </OuterLogin>

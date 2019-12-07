@@ -29,10 +29,15 @@ class User extends Component {
   }
 
   componentDidMount = () => {
+    if (this.props.loggedInId > 0) {
     axios.post('/auth/session').then(res => {
       this.props.setUser(res.data.user)
     })
-    if (+this.props.match.params.user_id !== +this.props.loggedInId) {
+    .catch(err => console.log(err))
+    }
+    if (+this.props.match.params.user_id === 0) {
+      this.props.history.push(`/`)
+    } else if (+this.props.match.params.user_id !== +this.props.loggedInId) {
       this.props.history.push(`/member/${this.props.match.params.user_id}`)
     }
     axios.get(`/api/friend/requests/${this.props.loggedInId}`).then(res => {
@@ -188,7 +193,9 @@ class User extends Component {
         />
         <ActivitiesList addActiv={true} userId={this.props.loggedInId} />
         <Chat userId={this.props.loggedInId} userName={this.props.firstName} />
-        <EventList usersEvents={this.props.events} userId={this.props.match.params.user_id} />
+        <EventList 
+        usersEvents={this.props.events} 
+        userId={this.props.match.params.user_id} />
       </UserPage>
     )
   }
@@ -212,6 +219,7 @@ const UserPage = styled.div`
   @import url('https://fonts.googleapis.com/css?family=Noto+Sans:700&display=swap');
   display: flex;
   flex-wrap: wrap;
+  min-height:calc(100vh - 80px);
   justify-content: space-around;
   width: 100vw;
   background: #ebebeb;

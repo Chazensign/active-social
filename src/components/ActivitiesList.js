@@ -18,8 +18,7 @@ class ActivitiesList extends Component {
       axios
       .get(`/api/activities/${this.props.userId}`)
       .then(res => this.setState({ userActivities: res.data }))
-      .catch(err => console.log(err)
-      )
+      .catch(err => console.log(err))
     }
   }
 

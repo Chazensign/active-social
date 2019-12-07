@@ -137,7 +137,7 @@ class EditEventModal extends Component {
       img
     } = this.state
 
-    return this.props.showEventModal ? (
+    return this.props.showEditEventModal ? (
       <EditEventModalOuter>
         <div className='create-modal'>
           <div className='event-li'>
@@ -196,6 +196,7 @@ class EditEventModal extends Component {
           />{' '}
           <div className='input-title'>Date/Time:</div>
           <input
+            required
             type='datetime-local'
             // value={eventDate}
             name='eventDate'
@@ -255,6 +256,12 @@ const EditEventModalOuter = styled.div`
     transform: translate(250px, -350px);
     border-radius: 10px;
     box-shadow: 5px 5px 15px 5px #000000;
+  }
+  h2 {
+    margin: 0 0 10px 0;
+  }
+  h5 {
+    margin: 3px 0;
   }
   .create-modal input {
     width: 300px;

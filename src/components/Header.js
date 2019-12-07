@@ -26,16 +26,19 @@ class Header extends Component {
   }
 
   componentDidMount = () => {
+    if (this.props.userId > 0) {
     axios.post('/auth/session').then(res => {
       this.props.setUser(res.data.user)
     })
+  }
   }
 
   handleChange = trg => {
     this.setState({ [trg.name]: trg.value })
   }
 
-  submitLogin = () => {
+  submitLogin = (e) => {
+    if (e) e.preventDefault()
     axios
       .post('/auth/login', {
         email: this.state.email,
@@ -108,9 +111,11 @@ class Header extends Component {
       }, 400)
     }
   }
+
   assignMenu = element => {
     this.menu = element
   }
+
   logout = () => {
     axios.delete('/auth/logout').then(res => {
       this.setState({ loginDisp: false })
@@ -130,7 +135,7 @@ class Header extends Component {
       <FunctionalHeader>
         <header>
           <Link to='/'>
-            <h1>Logo/Title</h1>
+            <h1>ActvlySocial</h1>
           </Link>
           {!this.state.loginDisp && !this.props.firstName ? (
             <nav className='login-nav'>
@@ -190,6 +195,7 @@ class Header extends Component {
         </header>
         <div>
           <Login
+            keyDownCheck={this.keyDownCheck}
             assignLogin={this.assignLogin}
             hidden={this.state.hidden}
             login={this.submitLogin}
@@ -218,6 +224,7 @@ export default withRouter(
 )
 
 const FunctionalHeader = styled.div`
+  @import url('https://fonts.googleapis.com/css?family=Teko:400,500,600,700&display=swap');
   header {
     box-sizing: border-box;
     width: 100vw;
@@ -233,14 +240,16 @@ const FunctionalHeader = styled.div`
       #14396a4d 100%
     );
     color: white;
-    padding: 0 70px 0 70px;
+    padding: 0 70px 0 50px;
     position: fixed;
     top: 0px;
     left: 0px;
     z-index: 2;
   }
   header h1 {
-    /* color: #00d625; */
+    font-family: 'Teko', sans-serif;
+    font-size: 48px;
+    letter-spacing: -3px;
     margin-right: 300px;
   }
   header a {
@@ -287,11 +296,11 @@ const FunctionalHeader = styled.div`
 
   @media (max-width: 800px) {
     header {
-      padding: 0 30px 0 30px;
+      padding: 0 30px 0 20px;
     }
     header h1 {
       margin-right: 80px;
-      font-size: 30px;
+      font-size: 38px;
     }
     .initals-bars {
       display: initial;

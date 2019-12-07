@@ -1,4 +1,6 @@
+require('dotenv').config()
 const axios = require('axios')
+const { GOOGLE_KEY } = process.env
 
 module.exports = {
   getUsersFriends: async (req, res) => {
@@ -147,7 +149,7 @@ module.exports = {
     const { userId } = req.session.user
     const db = await req.app.get('db')
     db.save_event_to_user(eventId, userId)
-    .then(() => res.status(200).send({message: 'Following Event'}))
+    .then(result => res.status(200).send({message: 'Following Event', events: result}))
   },
   addFriend: async (req, res) => {
     const db = await req.app.get('db')
@@ -267,5 +269,27 @@ module.exports = {
     ).then(result => {
       res.status(200).send(result)
     })
+  },
+  
+  getEventLocation: async (req, res) => {
+    let { street, city, state } = req.body
+    street = street.replace(' ', '+')
+    city = city.replace(' ', '+')
+    state = state.replace(' ', '+')
+    const result = await axios({
+      method: 'GET',
+      url: `https://maps.googleapis.com/maps/api/geocode/json?address=${street},+${city},+${state}&key=AIzaSyBzGH1h2ELCuxYGyESEc5Lepr0SFKLwQ6g`,
+    })
+    res.status(200).send({location: result.data.results[0].geometry.location, street, city, state})
+  },
+
+  unfollowEvent: async (req, res) => {
+    const { userId } = req.session.user
+    const { eventId } = req.params
+    const db = await req.app.get('db')
+    db.unfollow_event(eventId, userId)
+    .then(result => res.status(200).send(result))
+    .catch(err => console.log(err))
   }
+
 }

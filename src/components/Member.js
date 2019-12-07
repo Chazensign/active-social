@@ -28,19 +28,25 @@ class Member extends Component {
   }
 
   componentDidMount = () => {
-    
-    
-     axios.post('/auth/session').then(res => {
-       this.props.setUser(res.data.user)
-     })
-     axios.get(`/api/friends/${this.props.match.params.user_id}`)
-     .then(res => {
-       this.setState({ userNames: res.data })
-      if (res.data.length === 0) {
-        this.setState({ emptyFriends: true })
+    axios.post('/auth/session').then(res => {
+      this.props.setUser(res.data.user)
+    }) 
+    .catch(err => console.log(err)
+    )
+    if (+this.props.match.params.user_id === 0) {
+      this.props.history.push(`/`)
+    } 
+    else if (this.props.match.params.user_id > 0) {
+      axios
+        .get(`/api/friends/${this.props.match.params.user_id}`)
+        .then(res => {
+          this.setState({ userNames: res.data })
+          if (res.data.length === 0) {
+            this.setState({ emptyFriends: true })
+          }
+        })
+        .catch(err => console.log(err))
       }
-      })
-
     if (this.props.match.params.user_id) {
       axios
       .get(`api/member/${+this.props.match.params.user_id}`)
@@ -69,6 +75,7 @@ class Member extends Component {
         <h2 className='user-name'>
           {this.state.firstName} {this.state.lastName}
         </h2>
+        <div className='components' >
         {this.state.firstName && (
           <Chat
             userId={this.props.match.params.user_id}
@@ -88,7 +95,8 @@ class Member extends Component {
           {...this.props}
           userId={this.props.userId}
         />
-        <EventList memberId={this.props.match.params.user_id} />
+        <EventList usersEvents={this.props.events} userId={this.props.userId} memberId={this.props.match.params.user_id} />
+      </div>
       </MemberPage>
     )
   }
@@ -100,7 +108,8 @@ function mapStateToProps(reduxState) {
     profilePic: reduxState.profilePic,
     firstName: reduxState.firstName,
     userId: reduxState.userId,
-    friends: reduxState.friends
+    friends: reduxState.friends,
+    events: reduxState.events
   }
 }
 
@@ -108,13 +117,15 @@ export default connect(mapStateToProps, { setUser })(Member)
 
 const MemberPage = styled.div`
   @import url('https://fonts.googleapis.com/css?family=Noto+Sans:700&display=swap');
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-around;
   width: 100vw;
-  min-height: 100vh;
+  min-height: calc(100vh - 80px);
   background: #ebebeb;
+  .components {
+    width: 100vw;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
   .user-name {
     width: 100vw;
     text-align: center;
