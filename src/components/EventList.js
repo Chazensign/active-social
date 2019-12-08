@@ -16,34 +16,52 @@ class EventList extends Component {
       event: {},
       showEventModal: false,
       showEditEventModal: false,
-      addEvent: false
+      addEvent: false,
+      pos: ''
     }
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
+    let pos
+    if (this.props.userId > 0) {
+      navigator.geolocation.getCurrentPosition(position => {
+        pos = position
+        this.setState(
+          { pos: `${pos.coords.latitude},${pos.coords.longitude}` },
+          () => this.finished(this.state.pos)
+        )
+      })
+    } else {
+      this.finished(0)
+    }
+  }
+  finished = pos => {
     if (this.props.userId && !this.props.activId) {
       axios
-        .get(`/api/events/${this.props.userId}`)
+        .get(`/api/events/info/${this.props.userId}/${pos}`)
         .then(res => {
           this.setState({ events: res.data })
         })
         .catch(err => console.log(err))
     } else if (this.props.memberId) {
       axios
-        .get(`/api/events/${this.props.memberId}`)
-        .then(res => {
-          this.setState({ events: res.data })
-        })
+        .get(`/api/events/info/${this.props.memberId}/${pos}`)
+        .then(res => this.setState({ events: res.data }))
         .catch(err => console.log(err))
     } else if (this.props.activId) {
+      let position
+      if (this.props.userId > 0) {
+        position = pos
+      } else {
+        position = 0
+      }
       axios
-        .get(`/api/activity/events/${this.props.activId}`)
-        .then(res => {
-          this.setState({ events: res.data })
-        })
+        .get(`/api/activity/events/${this.props.activId}/pos/${position}`)
+        .then(res => this.setState({ events: res.data }))
         .catch(err => console.log(err))
     }
   }
+
   showAddEvent = () => {
     if (this.props.userId > 0) {
       this.setState({ addEvent: !this.state.addEvent })
@@ -60,8 +78,6 @@ class EventList extends Component {
     this.setState({ events: res.data })
   }
   addEventToUser = id => {
-    console.log(this.props.userId)
-
     if (this.props.userId > 0) {
       axios.post(`/api/user/events/${id}`).then(res => {
         this.props.setUser(res.data)
@@ -85,9 +101,7 @@ class EventList extends Component {
   unfollowEvent = id => {
     axios
       .delete(`/api/user/events/${id}`)
-      .then(res => {
-        this.setState({ events: res.data })
-      })
+      .then(res => this.setState({ events: res.data }))
       .catch(err => console.log(err))
   }
 
@@ -131,7 +145,6 @@ class EventList extends Component {
   }
 
   render() {
-    
     return (
       <>
         <OuterEvents>
@@ -156,6 +169,7 @@ class EventList extends Component {
                     <div className='title-date'>
                       <h2 className='event-title'>{event.ev_title}</h2>
                       <p className='date'>{event.date}</p>
+                      <p className='distance'>{event.distance}</p>
                     </div>
                     <div
                       className='event-img'
@@ -282,6 +296,7 @@ const OuterEvents = styled.div`
   }
   .event-title {
     width: 155px;
+    margin: 10px 0;
   }
   .event-img {
     max-height: 160px;
@@ -305,7 +320,7 @@ const OuterEvents = styled.div`
   }
   .date {
     width: 110px;
-    margin: 10px;
+    margin: 5px;
   }
   .add-event {
     position: absolute;
@@ -329,6 +344,9 @@ const OuterEvents = styled.div`
   .add-event:hover {
     background: linear-gradient(to bottom, #468ccf 5%, #63b8ee 100%);
     background-color: #468ccf;
+  }
+  .distance {
+    margin: 0;
   }
   .p-button {
     box-sizing: border-box;

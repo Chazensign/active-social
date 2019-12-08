@@ -38,7 +38,6 @@ export function updateFriends(friends) {
     }
 }
 
-
 export default function reducer(state = initialState, action) {
   switch (action.type) {
     case SET_USER:
@@ -47,6 +46,7 @@ export default function reducer(state = initialState, action) {
       return {...action.payload}
       case UPDATE_FRIENDS:
         return {...state, friends: action.payload}
+
     default:
       return state
   }

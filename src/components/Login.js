@@ -68,6 +68,7 @@ const OuterLogin = styled.div`
 
   .login-box {
     box-sizing: border-box;
+    contain: content;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -83,7 +84,7 @@ const OuterLogin = styled.div`
     border: 2px solid black;
     border-radius: 8px;
     background: #c4c4c4;
-    animation: drop-inner 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    animation: drop-inner 4000ms cubic-bezier(0.25, 0.1, 0.25, 1);
   }
   @keyframes drop {
     from {
@@ -92,7 +93,7 @@ const OuterLogin = styled.div`
     }
     to {
       height: 100vh;
-      font-size: 24;
+      font-size: 1.5em;
     }
   }
   @keyframes drop-inner {
@@ -102,13 +103,13 @@ const OuterLogin = styled.div`
     }
     to {
       height: 230px;
-      font-size: 24;
+      font-size: 1.5em;
     }
   }
   @keyframes return {
     from {
       height: 100vh;
-      font-size: 24;
+      font-size: 1.5;
     }
     to {
       height: 0;

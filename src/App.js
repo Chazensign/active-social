@@ -1,12 +1,23 @@
-import React from 'react';
+import React, {Component} from 'react';
 import './App.css';
 import Header from './components/Header'
 import Routes from './Routes'
 
-const App = () => (
+class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+  
+  render () {
+    return (
     <div className='App'>
       <Header />
       {Routes}
     </div>
-  )
-export default App;
+    )
+  }
+}
+
+export default App
+

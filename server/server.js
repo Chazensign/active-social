@@ -8,28 +8,12 @@ const ctrl = require('./controllers/Controller')
 const session = require('express-session')
 socket = require('socket.io')
 
-async function example() {
-  const client = new DynamoDB({ region: 'us-west-2' })
-  try {
-    const results = await client.listTables({})
-    console.log(results.TableNames.join('\n'))
-  } catch (err) {
-    console.error(err)
-  }
-}
+
 massive(CONNECTION_STRING).then(databaseConnection => {
   app.set('db', databaseConnection)
   console.log('Database Connected')
 })
 
-// app.use(function(req, res, next) {
-//   res.header('Access-Control-Allow-Origin', '*')
-//   res.header(
-//     'Access-Control-Allow-Headers',
-//     'Origin, X-Requested-With, Content-Type, Accept'
-//   )
-//   next()
-// })
 app.use(express.json())
 
 app.use(
@@ -68,9 +52,9 @@ app.get('/api/friends/redux/:userId', ctrl.reduxFriends)
 app.get('/api/activities/:userId', ctrl.getUsersActiv)
 app.get('/api/activities', ctrl.getActivities)
 app.post('/api/activities', ctrl.addActivs)
-app.get('/api/activity/events/:id', ctrl.getActivEvents)
+app.get('/api/activity/events/:activ/pos/:pos', ctrl.getActivEvents)
 app.get('/api/activity/:id', ctrl.activityPageInfo)
-app.get('/api/events/:userId', ctrl.getUsersEvents)
+app.get('/api/events/info/:userId/:pos', ctrl.getUsersEvents)
 app.delete('/api/event/:eventId', ctrl.deleteEvent)
 app.post('/api/user/events/:eventId', ctrl.addEventToUser)
 app.delete('/api/user/events/:eventId', ctrl.unfollowEvent)
@@ -81,7 +65,6 @@ app.get('/chat', function(req, res) {
   res.status(200).send('hello')
 })
 
-// app.get('/api/images', awsCtrl.signedUrl)
 
 io.on('connection', async socket => {
   console.log('User connected')

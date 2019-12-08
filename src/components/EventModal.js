@@ -27,6 +27,7 @@ class EventModal extends Component {
   }
 
   componentDidMount = () => {
+    console.log()
     const {
       date,
       ev_title,
@@ -92,15 +93,14 @@ class EventModal extends Component {
               </div>
               <img className='event-img' src={img} alt='' />
             </div>
-            {this.state.eventLocation && (
+            {this.state.showMap ? (
               <div id='map-div'>
                 <MapContainer
                   {...this.props}
-                  showMap={this.state.showMap}
                   pos={this.state.eventLocation}
                 />
               </div>
-            )}
+            ) : null}
           </div>
           <p>{content}</p>
           <div className='buttons'>

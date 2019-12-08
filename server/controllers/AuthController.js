@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs')
 
 module.exports = {
+  
   register: async (req, res) => {
     const {
       email,
@@ -39,16 +40,15 @@ module.exports = {
       db.add_interests(activ.activId, userId, activ.activContent, activ.skillLevel, activ.lessons)
     })
     db.add_address(city, state, zip, userId)
-    res
-      .status(201)
-      .send({
-        message: 'Account created, you are logged in.',
-        user: req.session.user,
-        userActivs: userActivs
-      })
+    res.status(201).send({
+      message: 'Account created, you are logged in.',
+      user: req.session.user,
+      userActivs: userActivs 
+    })
 
   },
   login: async (req, res) => {
+    
     const { email, password } = req.body
     const db = req.app.get('db')
     const foundUser = await db.retrieve_user(email)
@@ -62,6 +62,7 @@ module.exports = {
     const result = await bcrypt.compareSync(password, foundHash[0].hash)
     
     if (result === true) {
+      
       const {
         first_name,
         last_name,
@@ -84,9 +85,8 @@ module.exports = {
         events: events
       }
       req.session.user = user
-      res
-        .status(200)
-        .send({
+      
+      res.status(200).send({
           message: 'Logged in.',
           user: { ...user}
         })

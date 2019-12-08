@@ -1,6 +1,10 @@
 import React from 'react'
 import { Map, GoogleApiWrapper, Marker } from 'google-maps-react'
+
+
 let mapStyles = {}
+
+
 
 if (window.screen.width > 800) {
 mapStyles = {
@@ -18,27 +22,28 @@ mapStyles = {
   zIndex: '10'
 }
 }
-const MapContainer = props => {
-  console.log(window.screen.width)
-  console.log({ lat: 40.1181327, lng: -111.6398019 })
 
+
+const MapContainer = props => {
+  
   return (
     <>
-      {props.showMap && (
         <Map
+          {...props}
           google={props.google}
           zoom={10}
           style={mapStyles}
           initialCenter={props.pos}>
           <Marker
-          // position={props.pos}
+          position={props.pos}
           />
         </Map>
-      )}
     </>
   )
 }
 
+
 export default GoogleApiWrapper({
-  apiKey: 'AIzaSyBzGH1h2ELCuxYGyESEc5Lepr0SFKLwQ6g'
+  apiKey: process.env.REACT_APP_GOOGLE_KEY
 })(MapContainer)
+  

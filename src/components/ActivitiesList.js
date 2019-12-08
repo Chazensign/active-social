@@ -57,12 +57,16 @@ const ActivitiesContainer = styled.div`
 
   h2 {
     box-sizing: border-box;
-    width: 296px;
-    margin: 2px 0 0 2px;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    margin: 1px;
     padding: 5px;
     background: #14396a;
     color: #63b8ee;
-    border-radius: 4px;
+    border-radius: 6px;
     box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
   }
   h3 {

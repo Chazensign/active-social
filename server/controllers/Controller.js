@@ -1,6 +1,6 @@
 require('dotenv').config()
 const axios = require('axios')
-const { GOOGLE_KEY } = process.env
+const { REACT_APP_GOOGLE_KEY } = process.env
 
 module.exports = {
   getUsersFriends: async (req, res) => {
@@ -14,18 +14,32 @@ module.exports = {
   },
 
   getUsersEvents: async (req, res) => {
-    const { userId, activId } = req.params
-    let events
+    const { pos, userId } = req.params
     const db = await req.app.get('db')
-    if (userId) {
-      events = await db.get_users_events(userId)
-      return res.status(200).send(events)
-    } else if (activId) {
-      events = await db.get_events_by_activ(activId)
-      return res.status(200).send(events)
-    } else {
-      return res.sendStatus(403)
-    }
+    const events = await db.get_users_events(userId)
+    if (+pos !== 0) {
+      console.log(pos)
+      
+    const eventAddArr = await events.map(event => {
+      const street = event.street.split(' ').join('+')
+      const city = event.city.split(' ').join('+')
+      const state = event.state
+      return `${street}+${city}+${state}`
+    })
+    const reqString = eventAddArr.join('|')
+    const result = await axios({
+      method: 'GET',
+      url: `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${pos}&destinations=${reqString}=driving&key=${REACT_APP_GOOGLE_KEY}&units=imperial`
+    })
+    const distance = result.data.rows[0].elements
+    const finalResult = await events.map((event, i) => ({
+      ...event,
+      distance: distance[i].distance.text
+    }))
+    return res.status(200).send(finalResult)
+  }else {
+    return res.status(200).send(events)
+  }
   },
 
   getUsersActiv: async (req, res) => {
@@ -63,7 +77,7 @@ module.exports = {
         for (let i = 0; i < zips.length; i++) {
           for (let j = 0; j < result.length; j++) {
             if (+zips[i] === +result[j].zip) {
-             usersByZip.push(result[j])
+              usersByZip.push(result[j])
             }
           }
         }
@@ -72,8 +86,8 @@ module.exports = {
 
       let arrToSend = []
       for (let i = 0; i < usersByZip.length; i++) {
-       let activs = await db.get_user_activ_ids(usersByZip[i].id)
-       arrToSend.push({userActivs: activs, user: usersByZip[i]})
+        let activs = await db.get_user_activ_ids(usersByZip[i].id)
+        arrToSend.push({ userActivs: activs, user: usersByZip[i] })
       }
       res.status(200).send(arrToSend)
     })
@@ -104,14 +118,30 @@ module.exports = {
     })
   },
   getActivEvents: async (req, res) => {
+    const { pos, activ } = req.params
     const db = await req.app.get('db')
-    db.get_events_by_activ(req.params.id)
-      .then(result => {
-        res.status(200).send(result)
-      })
-      .catch(err =>
-        res.status(417).send({ message: 'Unable to get events.', err })
-      )
+    const events = await db.get_events_by_activ(activ)
+    if (+pos !== 0) {
+    const eventAddArr = await events.map(event => {
+      const street = event.street.split(' ').join('+')
+      const city = event.city.split(' ').join('+')
+      const state = event.state
+      return `${street}+${city}+${state}`
+    })
+    const reqString = eventAddArr.join('|')
+    const result = await axios({
+      method: 'GET',
+      url: `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${pos}&destinations=${reqString}=driving&key=${REACT_APP_GOOGLE_KEY}&units=imperial`
+    })
+    const distance = result.data.rows[0].elements
+    const finalResult = await events.map((event, i) => ({
+      ...event,
+      distance: distance[i].distance.text
+    }))
+    res.status(200).send(finalResult)
+  }else {
+    res.status(200).send(events)
+  }
   },
   addEvent: async (req, res) => {
     const {
@@ -148,18 +178,15 @@ module.exports = {
     const { eventId } = req.params
     const { userId } = req.session.user
     const db = await req.app.get('db')
-    db.save_event_to_user(eventId, userId)
-    .then(result => res.status(200).send({message: 'Following Event', events: result}))
+    db.save_event_to_user(eventId, userId).then(result =>
+      res.status(200).send({ message: 'Following Event', events: result })
+    )
   },
   addFriend: async (req, res) => {
     const db = await req.app.get('db')
-    db.add_friend(
-      req.params.id,
-      req.session.user.userId,
-      false,
-      req.params.id
-    ).then(() => res.status(200).send({ message: 'Request Sent' }))
-    .catch(err => res.sendStatus(500))
+    db.add_friend(req.params.id, req.session.user.userId, false, req.params.id)
+      .then(() => res.status(200).send({ message: 'Request Sent' }))
+      .catch(err => res.sendStatus(500))
   },
   getFriendRequests: async (req, res) => {
     const db = await req.app.get('db')
@@ -182,8 +209,7 @@ module.exports = {
     const db = await req.app.get('db')
     db.remove_friend(req.params.id, req.session.user.userId).then(result => {
       res.status(200).send(result)
-    }
-    )
+    })
   },
   updateUser: async (req, res) => {
     const { firstName, lastName, email, city, state, zip, userId } = req.body
@@ -226,7 +252,7 @@ module.exports = {
         activ.lessons
       )
     })
-    res.status(201).send({message: 'Interests Added.'})
+    res.status(201).send({ message: 'Interests Added.' })
   },
   reduxFriends: async (req, res) => {
     const { userId } = req.params
@@ -238,8 +264,9 @@ module.exports = {
     const { userId } = req.session.user
     const { eventId } = req.params
     const db = await req.app.get('db')
-    db.delete_event(eventId, userId)
-    .then(result => res.status(200).send(result))
+    db.delete_event(eventId, userId).then(result =>
+      res.status(200).send(result)
+    )
   },
   editEvent: async (req, res) => {
     const {
@@ -270,7 +297,17 @@ module.exports = {
       res.status(200).send(result)
     })
   },
-  
+  // eventDistance: (req, res) => {
+  //   let { street, city, state } = req.body
+  //   street = street.replace(' ', '+')
+  //   city = city.replace(' ', '+')
+  //   state = state.replace(' ', '+')
+  //   const result = await axios({
+  //     method: 'GET',
+  //     url: `https://maps.googleapis.com/maps/api/distancematrix/xml?origins=${lat}+${lng}&destinations=${eventLocations.map(ev)}=driving&key=${GOOGLE_KEY}`,
+  //   })
+  //   res.status(200).send({location: result.data.results[0].geometry.location, street, city, state})
+  // },
   getEventLocation: async (req, res) => {
     let { street, city, state } = req.body
     street = street.replace(' ', '+')
@@ -278,9 +315,14 @@ module.exports = {
     state = state.replace(' ', '+')
     const result = await axios({
       method: 'GET',
-      url: `https://maps.googleapis.com/maps/api/geocode/json?address=${street},+${city},+${state}&key=AIzaSyBzGH1h2ELCuxYGyESEc5Lepr0SFKLwQ6g`,
+      url: `https://maps.googleapis.com/maps/api/geocode/json?address=${street},+${city},+${state}&key=${REACT_APP_GOOGLE_KEY}`
     })
-    res.status(200).send({location: result.data.results[0].geometry.location, street, city, state})
+    res.status(200).send({
+      location: result.data.results[0].geometry.location,
+      street,
+      city,
+      state
+    })
   },
 
   unfollowEvent: async (req, res) => {
@@ -288,8 +330,7 @@ module.exports = {
     const { eventId } = req.params
     const db = await req.app.get('db')
     db.unfollow_event(eventId, userId)
-    .then(result => res.status(200).send(result))
-    .catch(err => console.log(err))
+      .then(result => res.status(200).send(result))
+      .catch(err => console.log(err))
   }
-
 }

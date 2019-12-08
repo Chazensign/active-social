@@ -23,16 +23,19 @@ class Member extends Component {
       zip: 0,
       activities: [],
       emptyFriends: false,
-      userNames: []
+      userNames: [],
+      render: false
     }
   }
 
-  componentDidMount = () => {
-    axios.post('/auth/session').then(res => {
-      this.props.setUser(res.data.user)
-    }) 
-    .catch(err => console.log(err)
-    )
+  componentDidMount = async () => {
+    axios
+      .post('/auth/session')
+      .then(res => {
+        this.props.setUser(res.data.user)
+        this.setState({ render: true })
+      })
+      .catch(() => this.setState({ render: true }))
     if (+this.props.match.params.user_id === 0) {
       this.props.history.push(`/`)
     } 
@@ -70,6 +73,7 @@ class Member extends Component {
   }
 
   render() {
+    
     return (
       <MemberPage>
         <h2 className='user-name'>
@@ -95,7 +99,7 @@ class Member extends Component {
           {...this.props}
           userId={this.props.userId}
         />
-        <EventList usersEvents={this.props.events} userId={this.props.userId} memberId={this.props.match.params.user_id} />
+        {this.state.render ? <EventList usersEvents={this.props.events} userId={this.props.userId} memberId={this.props.match.params.user_id} /> : null}
       </div>
       </MemberPage>
     )

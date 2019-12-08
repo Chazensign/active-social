@@ -26,11 +26,10 @@ class Header extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.userId > 0) {
-    axios.post('/auth/session').then(res => {
-      this.props.setUser(res.data.user)
-    })
-  }
+    axios
+      .post('/auth/session')
+      .then(res => this.props.setUser(res.data.user))
+      .catch(err => console.log(err))
   }
 
   handleChange = trg => {
@@ -54,6 +53,8 @@ class Header extends Component {
         this.props.history.push(`/user/${this.props.userId}`)
       })
       .catch(err => {
+        console.log(err)
+        
         Swal.fire({
           icon: 'error',
           title: err.response.data.message,

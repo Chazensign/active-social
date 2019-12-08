@@ -1,3 +1,4 @@
+// import dotenv/config from 'dotenv'
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -173,7 +174,7 @@ class User extends Component {
 
         {this.state.requestList.length > 0 ? (
           <RequestList
-            history={{...this.props.history}}
+            history={{ ...this.props.history }}
             emptyRequests={this.state.emptyRequests}
             denyFriend={this.denyFriend}
             requestList={this.state.requestList}
@@ -193,9 +194,10 @@ class User extends Component {
         />
         <ActivitiesList addActiv={true} userId={this.props.loggedInId} />
         <Chat userId={this.props.loggedInId} userName={this.props.firstName} />
-        <EventList 
-        usersEvents={this.props.events} 
-        userId={this.props.match.params.user_id} />
+        <EventList
+          usersEvents={this.props.events}
+          userId={this.props.loggedInId}
+        />
       </UserPage>
     )
   }

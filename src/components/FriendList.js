@@ -66,12 +66,14 @@ const FriendList = props => {
             )
           })
         ) : (props.emptyFriends ? <h3 className='no-connections' >No Connections</h3> :
+          <div className='loading' >
           <ReactLoading
             type={'spokes'}
             color={'grey'}
-            height={'75px'}
-            width={'75px'}
+            height={'60px'}
+            width={'60px'}
           />
+          </div>
         )}
       </div>
     </FriendContainer>
@@ -80,20 +82,26 @@ const FriendList = props => {
 export default FriendList
 
 const FriendContainer = styled.div`
+  position: relative;
   height: 450px;
   width: 300px;
   background: white;
   box-shadow: inset 0px 0px 4px 1px grey;
   border-radius: 6px;
   margin: 10px;
+  overflow: scroll;
   h2 {
     box-sizing: border-box;
-    width: 296px;
-    margin: 2px 0 0 2px;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    margin: 1px;
     padding: 5px;
     background: #14396a;
     color: #63b8ee;
-    border-radius: 4px;
+    border-radius: 6px;
     box-shadow: inset 0px 0px 16px -3px rgba(0, 0, 0, 0.82);
   }
   .contact-cont h3 {
@@ -101,6 +109,13 @@ const FriendContainer = styled.div`
   }
   .contact-cont h3:hover {
     cursor: pointer;
+  }
+  .loading {
+    position: absolute;
+    top: calc(50% - 30px);
+    left: calc(50% - 30px);
+
+
   }
   button {
     margin: 10px;
