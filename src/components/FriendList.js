@@ -114,8 +114,6 @@ const FriendContainer = styled.div`
     position: absolute;
     top: calc(50% - 30px);
     left: calc(50% - 30px);
-
-
   }
   button {
     margin: 10px;

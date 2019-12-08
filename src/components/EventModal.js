@@ -27,7 +27,6 @@ class EventModal extends Component {
   }
 
   componentDidMount = () => {
-    console.log()
     const {
       date,
       ev_title,
@@ -55,7 +54,6 @@ class EventModal extends Component {
     axios
       .post('/api/google/location', { street, city, state, event_zip })
       .then(res => {
-        console.log(res)
         this.setState({ 
           showMap: true,
           eventLocation: res.data.location,

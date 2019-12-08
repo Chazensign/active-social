@@ -51,8 +51,8 @@ class EditEventModal extends Component {
     this.setState({ [trg.name]: trg.value })
   }
   editEvent = () => {
-    axios.put('/api/events', this.state).then(res => {
-      this.props.updateEvents(res)
+    axios.put('/api/events', this.state).then(() => {
+      this.props.finished()
       Swal.fire({
         icon: 'success',
         title: 'Event Updated',

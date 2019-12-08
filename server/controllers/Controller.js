@@ -18,8 +18,6 @@ module.exports = {
     const db = await req.app.get('db')
     const events = await db.get_users_events(userId)
     if (+pos !== 0) {
-      console.log(pos)
-      
     const eventAddArr = await events.map(event => {
       const street = event.street.split(' ').join('+')
       const city = event.city.split(' ').join('+')

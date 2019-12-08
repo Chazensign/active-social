@@ -1,3 +1,4 @@
+const path = require('path')
 require('dotenv').config()
 const { SERVER_PORT, CONNECTION_STRING, SESSION_SECRET } = process.env
 const express = require('express')
@@ -15,6 +16,7 @@ massive(CONNECTION_STRING).then(databaseConnection => {
 })
 
 app.use(express.json())
+app.use(express.static(`${__dirname}/../build`))
 
 app.use(
   session({
@@ -123,4 +125,7 @@ io.on('connection', async socket => {
   socket.on('disconnect', () => {
     console.log('User Disconnected')
   })
+})
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build/index.html'))
 })

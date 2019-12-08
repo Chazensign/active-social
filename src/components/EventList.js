@@ -17,7 +17,7 @@ class EventList extends Component {
       showEventModal: false,
       showEditEventModal: false,
       addEvent: false,
-      pos: ''
+      pos: 0
     }
   }
 
@@ -35,29 +35,59 @@ class EventList extends Component {
       this.finished(0)
     }
   }
-  finished = pos => {
-    if (this.props.userId && !this.props.activId) {
-      axios
-        .get(`/api/events/info/${this.props.userId}/${pos}`)
-        .then(res => {
-          this.setState({ events: res.data })
+  finished = () => {
+    if (this.props.memberId) {
+      let filtered
+      axios.get(`/api/events/info/${this.props.memberId}/${this.state.pos}`).then(res => {
+        if (this.state.pos) {
+          let toNum = res.data.map(event => {
+            let splitDist = event.distance.split(' ')
+            return { ...event, distanceToFilter: splitDist[0] }
+          })
+          filtered = toNum.sort((eventA, eventB) => {
+              return +eventA.distanceToFilter - +eventB.distanceToFilter
+            })
+          } else {
+            filtered = res.data
+          }
+          this.setState({ events: filtered })
         })
         .catch(err => console.log(err))
-    } else if (this.props.memberId) {
-      axios
-        .get(`/api/events/info/${this.props.memberId}/${pos}`)
-        .then(res => this.setState({ events: res.data }))
-        .catch(err => console.log(err))
+    } else if (this.props.userId && !this.props.activId) {
+      let filtered
+      axios.get(`/api/events/info/${this.props.userId}/${this.state.pos}`).then(res => {
+        if (this.state.pos) {
+          let toNum = res.data.map(event => {
+            let splitDist = event.distance.split(' ')
+            return { ...event, distanceToFilter: splitDist[0] }
+          })
+          filtered = toNum.sort((eventA, eventB) => {
+              return +eventA.distanceToFilter - +eventB.distanceToFilter
+            })
+        }else {
+          filtered = res.data
+        }
+        this.setState({ events: filtered })
+      })
+      .catch(err => console.log(err))
     } else if (this.props.activId) {
-      let position
-      if (this.props.userId > 0) {
-        position = pos
-      } else {
-        position = 0
-      }
+      let filtered
       axios
-        .get(`/api/activity/events/${this.props.activId}/pos/${position}`)
-        .then(res => this.setState({ events: res.data }))
+        .get(`/api/activity/events/${this.props.activId}/pos/${this.state.pos}`)
+        .then(res => {
+          if (this.state.pos) {
+            let toNum = res.data.map(event => {
+              let splitDist = event.distance.split(' ')
+              return { ...event, distanceToFilter: splitDist[0] }
+            })
+            filtered = toNum.sort((eventA, eventB) => {
+              return +eventA.distanceToFilter - +eventB.distanceToFilter
+            })
+          } else {
+            filtered = res.data
+          }
+          this.setState({ events: filtered })
+        })
         .catch(err => console.log(err))
     }
   }
@@ -157,8 +187,15 @@ class EventList extends Component {
             ) : null}
           </h2>
 
-          {!this.state.events ? (
-            <ReactLoading color={'grey'} height={'100px'} width={'100px'} />
+          {!this.state.events.length > 0 ? (
+            <div className='loading'>
+              <ReactLoading
+                type={'spokes'}
+                color={'grey'}
+                height={'60px'}
+                width={'60px'}
+              />
+            </div>
           ) : (
             this.state.events.map((event, i) => {
               return (
@@ -222,6 +259,7 @@ class EventList extends Component {
         />
         {this.state.showEditEventModal && (
           <EditEventModal
+            finished={this.finished}
             updateEvents={this.updateEvents}
             event={this.state.editEvent}
             showEditEventModal={this.state.showEditEventModal}
@@ -256,6 +294,11 @@ const OuterEvents = styled.div`
   box-shadow: inset 0px 0px 4px 1px grey;
   border-radius: 6px;
   overflow: scroll;
+  .loading {
+    position: absolute;
+    top: calc(50% - 30px);
+    left: calc(50% - 30px);
+  }
   .event-li {
     box-sizing: border-box;
     margin: 5px 0;

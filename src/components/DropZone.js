@@ -23,7 +23,7 @@ exports = module.exports = React.createClass({
         return axios.put(signedUrl, file, options)
       })
       .then(function(result) {
-        console.log(result)
+        
       })
       .catch(function(err) {
         console.log(err)

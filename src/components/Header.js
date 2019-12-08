@@ -54,7 +54,6 @@ class Header extends Component {
       })
       .catch(err => {
         console.log(err)
-        
         Swal.fire({
           icon: 'error',
           title: err.response.data.message,
@@ -77,14 +76,13 @@ class Header extends Component {
         this.setState({ hidden: true, loginDisp: false }, () => {
           document.removeEventListener('click', this.closeLogin)
         })
-      }, 400)
+      }, 450)
     }
   }
   showLogin = () => {
-    this.setState({ loginDisp: !this.state.loginDisp })
     this.login.classList.remove('hide-login')
     this.login.classList.add('show-login')
-    this.setState({ hidden: false }, () => {
+    this.setState({ hidden: false, loginDisp: !this.state.loginDisp }, () => {
       document.addEventListener('click', this.closeLogin)
     })
   }
@@ -245,7 +243,7 @@ const FunctionalHeader = styled.div`
     position: fixed;
     top: 0px;
     left: 0px;
-    z-index: 2;
+    z-index: 3;
   }
   header h1 {
     font-family: 'Teko', sans-serif;
