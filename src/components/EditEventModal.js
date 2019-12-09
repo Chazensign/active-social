@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
 import Swal from 'sweetalert2'
@@ -76,27 +76,25 @@ class EditEventModal extends Component {
   }
 
   getDate = input => {
-    
     let morningOrNight = ''
     function ISODateString(d) {
       function pad(n) {
         return n < 10 ? '0' + n : n
       }
       function fromMill(h) {
-        
         if (h === 24) {
-            amPm('pm')
-            return h -12
-        }else if (h > 12) {
           amPm('pm')
           return h - 12
-        }else if (h === 12) {
-            amPm('pm')
-            return h
-          }  else {
-            amPm('am')
-            return h
-          }
+        } else if (h > 12) {
+          amPm('pm')
+          return h - 12
+        } else if (h === 12) {
+          amPm('pm')
+          return h
+        } else {
+          amPm('am')
+          return h
+        }
       }
       function amPm(input) {
         morningOrNight = input
@@ -116,10 +114,9 @@ class EditEventModal extends Component {
       return `${date} ${time}`
     }
     const d = new Date(input)
-    
-    
+
     const finalDate = ISODateString(d)
-    
+
     this.setState({
       eventDate: finalDate
     })
@@ -142,17 +139,17 @@ class EditEventModal extends Component {
         <div className='create-modal'>
           <div className='event-li'>
             <div className='title-date-img'>
-              <div>
-                <h2>{title}</h2>
-                <h5>{eventDate}</h5>
-                <h5>
+              <div className='title-date-loc'>
+                <h2 className='event-title'>{title}</h2>
+                <h5 className='date-time'>{eventDate}</h5>
+                <h5 className='city-state'>
                   {city},{state}
                 </h5>
               </div>
               <img className='event-img' src={img} alt='' />
             </div>
             <div className='p-button'>
-              <p>{content}</p>
+              <p className='event-p'>{content}</p>
               <button>Follow</button>
             </div>
           </div>
@@ -227,12 +224,12 @@ class EditEventModal extends Component {
     ) : null
   }
 }
- 
-export default EditEventModal;
+
+export default EditEventModal
 
 const EditEventModalOuter = styled.div`
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   background: rgba(0, 0, 0, 0.6);
   box-sizing: border-box;
   padding-top: 80px;
@@ -240,6 +237,7 @@ const EditEventModalOuter = styled.div`
   top: 0;
   left: 0;
   z-index: 5;
+  overflow: scroll;
 
   .create-modal {
     padding: 10px;
@@ -250,18 +248,30 @@ const EditEventModalOuter = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: fixed;
+    position: absolute;
     top: 50%;
     right: 50%;
-    transform: translate(250px, -350px);
+    transform: translate(300px, -420px);
     border-radius: 10px;
     box-shadow: 5px 5px 15px 5px #000000;
+    margin: 50px;
   }
-  h2 {
+  .title-date-loc {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .event-title {
+    width: 150px;
     margin: 0 0 10px 0;
   }
-  h5 {
+  .date-time {
+    width: 100px;
     margin: 3px 0;
+  }
+  .city-state {
+    margin: 5px 0;
   }
   .create-modal input {
     width: 300px;
@@ -312,7 +322,7 @@ const EditEventModalOuter = styled.div`
   }
   .event-li {
     box-sizing: border-box;
-    margin: 5px 0;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -320,10 +330,15 @@ const EditEventModalOuter = styled.div`
     border-radius: 5px;
     width: 490px;
     display: flex;
-    padding: 10px;
+    padding: 3px;
   }
-  p {
+  .event-p {
+    margin: 0 0 5px 0;
+    height: 115px;
     width: 170px;
+    overflow: scroll;
+    border: 1px solid #b5b5b5;
+    border-radius: 5px;
   }
   .title {
     box-sizing: border-box;
@@ -343,7 +358,7 @@ const EditEventModalOuter = styled.div`
   }
   .title-date-img {
     display: flex;
-    width: 280px;
+    width: 305px;
   }
   .add-event {
     position: absolute;
@@ -395,7 +410,6 @@ const EditEventModalOuter = styled.div`
     position: relative;
   }
   @media (max-width: 800px) {
-    height: unset;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -403,6 +417,7 @@ const EditEventModalOuter = styled.div`
     padding-top: 0;
 
     .create-modal {
+      margin: 0;
       width: 325px;
       position: initial;
       transform: unset;
@@ -411,8 +426,17 @@ const EditEventModalOuter = styled.div`
       width: 290px;
       flex-wrap: wrap;
     }
+    .event-title {
+      margin: 0 0 0 0;
+    }
     .input-title {
       margin-left: 6px;
+    }
+    .city-state {
+      margin: 0 0 0 0;
+    }
+    .date-time {
+      margin: 0 0 0 0;
     }
     h2 {
       margin: 0 5px 10px 5px;
@@ -422,13 +446,17 @@ const EditEventModalOuter = styled.div`
       font-size: 14px;
       font-weight: normal;
     }
-    p {
-      width: auto;
+    .event-p {
+      width: 284px;
+      height: 60px;
       margin: 5px 0;
     }
     .event-li img {
       width: 100px;
       height: 100px;
+    }
+    textarea {
+      height: 40px;
     }
   }
 `

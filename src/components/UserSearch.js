@@ -98,7 +98,6 @@ class UserSearch extends Component {
   }
   
   render() {
-    
     return (
       <SearchContainer>
         <div className={!this.props.searchOnly ? 'search-box' : 'search-only'}>
@@ -151,7 +150,7 @@ class UserSearch extends Component {
               </button>
             </form>
           <div className='search-results'>
-            {!this.state.searchResults.length && this.state.loading
+            {!this.state.searchResults.length > 0 && this.state.loading
               ? ( <div className='loading'>
                   <ReactLoading
                     type={'spokes'}

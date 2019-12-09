@@ -28,7 +28,7 @@ const RequstList = (props) => {
                   <button
                     className='chat-confirm'
                     onClick={() =>
-                      this.props.showPrivateChat(friend.id, friend.first_name)
+                      props.showPrivateChat(friend.id, friend.first_name)
                     }>
                     Chat
                   </button>

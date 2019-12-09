@@ -92,7 +92,7 @@ const OuterLogin = styled.div`
     border: 2px solid black;
     border-radius: 8px;
     background: #c4c4c4;
-    animation: drop-inner 400ms cubic-bezier(0.45, 0.73, 0.18, 0.95);
+    animation: drop-login 400ms cubic-bezier(0.45, 0.73, 0.18, 0.95);
   }
   .login-box-hide {
     box-sizing: border-box;
@@ -194,7 +194,7 @@ const OuterLogin = styled.div`
       margin: 0 0 10px 0;
     }
   }
-  @keyframes drop-inner {
+  @keyframes drop-login {
     0% {
       font-size: 0px;
       padding: 0px;

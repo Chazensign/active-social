@@ -12,6 +12,7 @@ class EventList extends Component {
     super(props)
     this.state = {
       events: [],
+      emptyEvents: false,
       editEvent: {},
       event: {},
       showEventModal: false,
@@ -38,13 +39,41 @@ class EventList extends Component {
   finished = () => {
     if (this.props.memberId) {
       let filtered
-      axios.get(`/api/events/info/${this.props.memberId}/${this.state.pos}`).then(res => {
-        if (this.state.pos) {
-          let toNum = res.data.map(event => {
-            let splitDist = event.distance.split(' ')
-            return { ...event, distanceToFilter: splitDist[0] }
-          })
-          filtered = toNum.sort((eventA, eventB) => {
+      axios
+        .get(`/api/events/info/${this.props.memberId}/${this.state.pos}`)
+        .then(res => {
+          
+          if (this.state.pos) {
+            let toNum = res.data.map(event => {
+              let splitDist = event.distance.split(' ')
+              return { ...event, distanceToFilter: splitDist[0] }
+            })
+            filtered = toNum.sort((eventA, eventB) => {
+              return +eventA.distanceToFilter - +eventB.distanceToFilter
+            })
+          } else {
+            filtered = res.data
+          }
+          this.setState({ events: filtered })
+          if (filtered === 0) {
+            this.setState({ emptyEvents: true })
+          }
+        })
+        .catch(err => console.log(err))
+    } else if (this.props.userId && !this.props.activId) {
+      let filtered
+      axios
+        .get(`/api/events/info/${this.props.userId}/${this.state.pos}`)
+        .then(res => {
+          if (res.data === 0) {
+            this.setState({ emptyEvents: true })
+          }
+          if (this.state.pos) {
+            let toNum = res.data.map(event => {
+              let splitDist = event.distance.split(' ')
+              return { ...event, distanceToFilter: splitDist[0] }
+            })
+            filtered = toNum.sort((eventA, eventB) => {
               return +eventA.distanceToFilter - +eventB.distanceToFilter
             })
           } else {
@@ -53,28 +82,14 @@ class EventList extends Component {
           this.setState({ events: filtered })
         })
         .catch(err => console.log(err))
-    } else if (this.props.userId && !this.props.activId) {
-      let filtered
-      axios.get(`/api/events/info/${this.props.userId}/${this.state.pos}`).then(res => {
-        if (this.state.pos) {
-          let toNum = res.data.map(event => {
-            let splitDist = event.distance.split(' ')
-            return { ...event, distanceToFilter: splitDist[0] }
-          })
-          filtered = toNum.sort((eventA, eventB) => {
-              return +eventA.distanceToFilter - +eventB.distanceToFilter
-            })
-        }else {
-          filtered = res.data
-        }
-        this.setState({ events: filtered })
-      })
-      .catch(err => console.log(err))
     } else if (this.props.activId) {
       let filtered
       axios
         .get(`/api/activity/events/${this.props.activId}/pos/${this.state.pos}`)
         .then(res => {
+          if (res.data === 0) {
+            this.setState({ emptyEvents: true })
+          }
           if (this.state.pos) {
             let toNum = res.data.map(event => {
               let splitDist = event.distance.split(' ')
@@ -106,11 +121,14 @@ class EventList extends Component {
   }
   updateEvents = res => {
     this.setState({ events: res.data })
+    if (res.data.length === 0) {
+      this.setState({ emptyEvents: true })
+    }
   }
   addEventToUser = id => {
     if (this.props.userId > 0) {
       axios.post(`/api/user/events/${id}`).then(res => {
-        this.props.setUser(res.data)
+        this.props.updateEvents(res.data.events)
         Swal.fire({
           icon: 'success',
           title: res.data.message,
@@ -131,7 +149,15 @@ class EventList extends Component {
   unfollowEvent = id => {
     axios
       .delete(`/api/user/events/${id}`)
-      .then(res => this.setState({ events: res.data }))
+      .then(res => {
+        this.props.updateEvents(res.data)
+        Swal.fire({
+          icon: 'success',
+          title: 'No longer following event.',
+          showConfirmButton: false,
+          timer: 1000
+        })
+      })
       .catch(err => console.log(err))
   }
 
@@ -147,6 +173,9 @@ class EventList extends Component {
       if (result.value) {
         axios.delete(`/api/event/${id}`).then(res => {
           this.setState({ events: res.data })
+          if (res.data.length === 0) {
+            this.setState({ emptyEvents: true })
+          }
           Swal.fire({
             icon: 'success',
             title: 'Removed!',
@@ -186,69 +215,75 @@ class EventList extends Component {
               </button>
             ) : null}
           </h2>
-
-          {!this.state.events.length > 0 ? (
-            <div className='loading'>
-              <ReactLoading
-                type={'spokes'}
-                color={'grey'}
-                height={'60px'}
-                width={'60px'}
-              />
-            </div>
-          ) : (
-            this.state.events.map((event, i) => {
-              return (
-                <div key={event.event_id} className='event-li'>
-                  <div
-                    onClick={() => this.dispEventModal(i)}
-                    className='title-date-img'>
-                    <div className='title-date'>
-                      <h2 className='event-title'>{event.ev_title}</h2>
-                      <p className='date'>{event.date}</p>
-                      <p className='distance'>{event.distance}</p>
-                    </div>
-                    <div
-                      className='event-img'
-                      style={{ backgroundImage: `url(${event.img})` }}
-                    />
-                  </div>
-                  <div className={this.props.userId ? 'p-button' : 'no-button'}>
-                    <p className='about'>{event.content}</p>
-                    {this.props.userId > 0 ? (
-                      !this.props.usersEvents.includes(event.event_id) ? (
-                        <button
-                          className='follow-button'
-                          onClick={() => this.addEventToUser(event.event_id)}>
-                          Follow
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => this.unfollowEvent(event.event_id)}
-                          className='follow-button'>
-                          Unfollow
-                        </button>
-                      )
-                    ) : null}
-                    {+this.props.userId === event.user_id ? (
-                      <>
-                        <button
-                          id='edit'
-                          onClick={() => this.dispEditEventModal(i)}>
-                          Edit
-                        </button>
-                        <button
-                          id='delete'
-                          onClick={() => this.deleteEvent(event.event_id)}>
-                          Delete
-                        </button>
-                      </>
-                    ) : null}
-                  </div>
+          <>
+            {this.state.events.length === 0 ? (
+              this.state.emptyEvents ? (
+                <h2>No Events</h2>
+              ) : (
+                <div className='loading'>
+                  <ReactLoading
+                    type={'spokes'}
+                    color={'grey'}
+                    height={'60px'}
+                    width={'60px'}
+                  />
                 </div>
               )
-            })
-          )}
+            ) : (
+              this.state.events.map((event, i) => {
+                return (
+                  <div key={event.event_id} className='event-li'>
+                    <div
+                      onClick={() => this.dispEventModal(i)}
+                      className='title-date-img'>
+                      <div className='title-date'>
+                        <h2 className='event-title'>{event.ev_title}</h2>
+                        <p className='date'>{event.date}</p>
+                        <p className='distance'>{event.distance}</p>
+                      </div>
+                      <div
+                        className='event-img'
+                        style={{ backgroundImage: `url(${event.img})` }}
+                      />
+                    </div>
+                    <div
+                      className={this.props.userId ? 'p-button' : 'no-button'}>
+                      <p className='about'>{event.content}</p>
+                      {this.props.userId > 0 ? (
+                        !this.props.usersEvents.includes(event.event_id) ? (
+                          <button
+                            className='follow-button'
+                            onClick={() => this.addEventToUser(event.event_id)}>
+                            Follow
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => this.unfollowEvent(event.event_id)}
+                            className='follow-button'>
+                            Unfollow
+                          </button>
+                        )
+                      ) : null}
+                      {+this.props.userId === event.user_id ? (
+                        <>
+                          <button
+                            id='edit'
+                            onClick={() => this.dispEditEventModal(i)}>
+                            Edit
+                          </button>
+                          <button
+                            id='delete'
+                            onClick={() => this.deleteEvent(event.event_id)}>
+                            Delete
+                          </button>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                )
+              })
+            )}
+          </>
         </OuterEvents>
 
         <CreateEvent
@@ -497,7 +532,7 @@ const OuterEvents = styled.div`
       max-height: 80px;
       margin: 5px 0;
     }
-    .date{
+    .date {
       margin: 0 0 0 0;
     }
     p.about {

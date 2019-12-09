@@ -76,7 +76,7 @@ const OuterMenu = styled.div`
     box-shadow: 3px 3px 15px -1px #000000;
   }
   .link {
-    animation: drop-inner 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    animation: drop-user 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
     color: black;
     margin: 18px 25px 15px 25px;
   }
@@ -87,7 +87,7 @@ const OuterMenu = styled.div`
       height: 100vh;
     }
   }
-  @keyframes drop-inner {
+  @keyframes drop-user {
     from {
       width: 10px;
       margin: 0;
@@ -99,7 +99,7 @@ const OuterMenu = styled.div`
       font-size: 24px;
     }
   }
-  @keyframes return {
+  @keyframes return-back {
     from {
       height: 100vh;
       font-size: 24px;

@@ -31,10 +31,12 @@ class User extends Component {
 
   componentDidMount = () => {
     if (this.props.loggedInId > 0) {
-    axios.post('/auth/session').then(res => {
-      this.props.setUser(res.data.user)
-    })
-    .catch(err => console.log(err))
+      axios
+        .post('/auth/session')
+        .then(res => {
+          this.props.setUser(res.data.user)
+        })
+        .catch(err => console.log(err))
     }
     if (+this.props.match.params.user_id === 0) {
       this.props.history.push(`/`)
@@ -70,7 +72,6 @@ class User extends Component {
       this.props.updateFriends(res.data)
     })
   }
-  // Everything below this line is trying to convert request to SFC
 
   confirmFriend = id => {
     axios.put(`/api/friend/request/${id}`).then(res => {
@@ -123,6 +124,15 @@ class User extends Component {
         axios.delete(`/api/friends/${id}`).then(res => {
           this.setState({ friendList: res.data })
           this.updateReduxFriends()
+          if (res.data.length === 0) {
+            this.setState({ emptyFriends: true })
+          }
+          axios
+            .post('/auth/session')
+            .then(result => {
+              this.props.setUser(result.data.user)
+            })
+            .catch(err => console.log(err))
           Swal.fire({
             icon: 'success',
             title: 'Removed!',
@@ -138,7 +148,6 @@ class User extends Component {
   }
 
   render() {
-    
     return (
       <UserPage>
         <h1 className='username'>
@@ -221,7 +230,7 @@ const UserPage = styled.div`
   @import url('https://fonts.googleapis.com/css?family=Noto+Sans:700&display=swap');
   display: flex;
   flex-wrap: wrap;
-  min-height:calc(100vh - 80px);
+  min-height: calc(100vh - 80px);
   justify-content: space-around;
   width: 100vw;
   background: #ebebeb;

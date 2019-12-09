@@ -104,7 +104,7 @@ box-shadow: 5px 5px 15px 5px #000000;
   box-sizing: border-box;
   margin: 20px; 
   padding: 15px;
-  z-index: 4;
+  z-index: 2;
   background: white;
   border-radius: 7px;
   border: 2px solid grey;

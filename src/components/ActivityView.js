@@ -5,7 +5,7 @@ import FriendList from './FriendList'
 import EventList from './EventList'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
-import { setUser } from '../ducks/reducer'
+import { setUser, updateEvents } from '../ducks/reducer'
 import ChatModal from './ChatModal'
 
 class ActivityView extends Component {
@@ -19,7 +19,8 @@ class ActivityView extends Component {
       friends: [],
       privateChat: false,
       otherChatter: '',
-      otherChatterId: 0
+      otherChatterId: 0,
+      propChange: false
     }
   }
 
@@ -49,9 +50,10 @@ class ActivityView extends Component {
   hidePrivateChat = () => {
     this.setState({ privateChat: false })
   }
-
+  propsRefresh = () => {
+    this.setState({ propChange: !this.state.propChange })
+  }
   render() {
-    
     if (this.state.activity)
       return (
         <ActivityPage>
@@ -98,7 +100,7 @@ class ActivityView extends Component {
               />
             ) : null}
             <EventList
-              setUser={this.props.setUser}
+              updateEvents={this.props.updateEvents}
               userId={this.props.loggedInId}
               usersEvents={this.props.events}
               activId={this.props.match.params.activ_id}
@@ -119,7 +121,7 @@ function mapStateToProps(reduxState) {
   }
 }
 
-export default connect(mapStateToProps, { setUser })(ActivityView)
+export default connect(mapStateToProps, { setUser, updateEvents })(ActivityView)
 
 const ActivityPage = styled.div`
   box-sizing: border-box;

@@ -18,26 +18,26 @@ module.exports = {
     const db = await req.app.get('db')
     const events = await db.get_users_events(userId)
     if (+pos !== 0) {
-    const eventAddArr = await events.map(event => {
-      const street = event.street.split(' ').join('+')
-      const city = event.city.split(' ').join('+')
-      const state = event.state
-      return `${street}+${city}+${state}`
-    })
-    const reqString = eventAddArr.join('|')
-    const result = await axios({
-      method: 'GET',
-      url: `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${pos}&destinations=${reqString}=driving&key=${REACT_APP_GOOGLE_KEY}&units=imperial`
-    })
-    const distance = result.data.rows[0].elements
-    const finalResult = await events.map((event, i) => ({
-      ...event,
-      distance: distance[i].distance.text
-    }))
-    return res.status(200).send(finalResult)
-  }else {
-    return res.status(200).send(events)
-  }
+      const eventAddArr = await events.map(event => {
+        const street = event.street.split(' ').join('+')
+        const city = event.city.split(' ').join('+')
+        const state = event.state
+        return `${street}+${city}+${state}`
+      })
+      const reqString = eventAddArr.join('|')
+      const result = await axios({
+        method: 'GET',
+        url: `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${pos}&destinations=${reqString}=driving&key=${REACT_APP_GOOGLE_KEY}&units=imperial`
+      })
+      const distance = result.data.rows[0].elements
+      const finalResult = await events.map((event, i) => ({
+        ...event,
+        distance: distance[i].distance.text
+      }))
+      return res.status(200).send(finalResult)
+    } else {
+      return res.status(200).send(events)
+    }
   },
 
   getUsersActiv: async (req, res) => {
@@ -120,26 +120,26 @@ module.exports = {
     const db = await req.app.get('db')
     const events = await db.get_events_by_activ(activ)
     if (+pos !== 0) {
-    const eventAddArr = await events.map(event => {
-      const street = event.street.split(' ').join('+')
-      const city = event.city.split(' ').join('+')
-      const state = event.state
-      return `${street}+${city}+${state}`
-    })
-    const reqString = eventAddArr.join('|')
-    const result = await axios({
-      method: 'GET',
-      url: `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${pos}&destinations=${reqString}=driving&key=${REACT_APP_GOOGLE_KEY}&units=imperial`
-    })
-    const distance = result.data.rows[0].elements
-    const finalResult = await events.map((event, i) => ({
-      ...event,
-      distance: distance[i].distance.text
-    }))
-    res.status(200).send(finalResult)
-  }else {
-    res.status(200).send(events)
-  }
+      const eventAddArr = await events.map(event => {
+        const street = event.street.split(' ').join('+')
+        const city = event.city.split(' ').join('+')
+        const state = event.state
+        return `${street}+${city}+${state}`
+      })
+      const reqString = eventAddArr.join('|')
+      const result = await axios({
+        method: 'GET',
+        url: `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${pos}&destinations=${reqString}=driving&key=${REACT_APP_GOOGLE_KEY}&units=imperial`
+      })
+      const distance = result.data.rows[0].elements
+      const finalResult = await events.map((event, i) => ({
+        ...event,
+        distance: distance[i].distance.text
+      }))
+      res.status(200).send(finalResult)
+    } else {
+      res.status(200).send(events)
+    }
   },
   addEvent: async (req, res) => {
     const {
@@ -176,9 +176,10 @@ module.exports = {
     const { eventId } = req.params
     const { userId } = req.session.user
     const db = await req.app.get('db')
-    db.save_event_to_user(eventId, userId).then(result =>
-      res.status(200).send({ message: 'Following Event', events: result })
-    )
+    db.save_event_to_user(eventId, userId).then(result => {
+      let eventIds = result.map(event => event.event_id)
+      res.status(200).send({ message: 'Following Event', events: eventIds })
+    })
   },
   addFriend: async (req, res) => {
     const db = await req.app.get('db')
@@ -256,7 +257,8 @@ module.exports = {
     const { userId } = req.params
     const db = await req.app.get('db')
     const friends = await db.get_redux_friends(userId)
-    res.status(200).send(friends)
+    let friendIds = friends.map(friend => friend.second_id)
+    res.status(200).send(friendIds)
   },
   deleteEvent: async (req, res) => {
     const { userId } = req.session.user
@@ -295,17 +297,6 @@ module.exports = {
       res.status(200).send(result)
     })
   },
-  // eventDistance: (req, res) => {
-  //   let { street, city, state } = req.body
-  //   street = street.replace(' ', '+')
-  //   city = city.replace(' ', '+')
-  //   state = state.replace(' ', '+')
-  //   const result = await axios({
-  //     method: 'GET',
-  //     url: `https://maps.googleapis.com/maps/api/distancematrix/xml?origins=${lat}+${lng}&destinations=${eventLocations.map(ev)}=driving&key=${GOOGLE_KEY}`,
-  //   })
-  //   res.status(200).send({location: result.data.results[0].geometry.location, street, city, state})
-  // },
   getEventLocation: async (req, res) => {
     let { street, city, state } = req.body
     street = street.replace(' ', '+')
@@ -328,7 +319,10 @@ module.exports = {
     const { eventId } = req.params
     const db = await req.app.get('db')
     db.unfollow_event(eventId, userId)
-      .then(result => res.status(200).send(result))
+      .then(result => {
+        let eventIds = result.map(event => event.event_id)
+        res.status(200).send(eventIds)
+      })
       .catch(err => console.log(err))
   }
 }

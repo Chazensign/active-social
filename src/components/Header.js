@@ -36,7 +36,7 @@ class Header extends Component {
     this.setState({ [trg.name]: trg.value })
   }
 
-  submitLogin = (e) => {
+  submitLogin = e => {
     if (e) e.preventDefault()
     axios
       .post('/auth/login', {
@@ -97,7 +97,7 @@ class Header extends Component {
       document.addEventListener('click', this.closeMenu)
     })
   }
-  closeMenu = (event) => {
+  closeMenu = event => {
     let location = document.getElementsByClassName('show-back')
     location = location[0]
     if (event.target === location || event.target === 'go') {

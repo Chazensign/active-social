@@ -49,7 +49,7 @@ const OuterMenu = styled.div`
     width: 100vw;
     height: 100vh;
     /* background: rgba(0, 0, 0, 0.6); */
-    animation: drop 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    animation: drop-back 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
   }
   .hide-back {
     position: absolute;
@@ -76,12 +76,12 @@ const OuterMenu = styled.div`
     justify-content: space-around;
     font-size: 24px;
     box-shadow: 3px 3px 15px -1px #000000;
-    animation: drop-inner 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
+    animation: drop-menu 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
   }
   .link {
     color: black;
   }
-  @keyframes drop {
+  @keyframes drop-back {
     from {
       height: 0;
       font-size: 0px;
@@ -91,7 +91,7 @@ const OuterMenu = styled.div`
       font-size: 24px;
     }
   }
-  @keyframes drop-inner {
+  @keyframes drop-menu {
     from {
       height: 0;
       font-size: 0px;
@@ -101,7 +101,7 @@ const OuterMenu = styled.div`
       font-size: 24px;
     }
   }
-  @keyframes return {
+  @keyframes return-back {
     from {
       height: 100vh;
       font-size: 24px;

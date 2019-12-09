@@ -9,7 +9,6 @@ const ctrl = require('./controllers/Controller')
 const session = require('express-session')
 socket = require('socket.io')
 
-
 massive(CONNECTION_STRING).then(databaseConnection => {
   app.set('db', databaseConnection)
   console.log('Database Connected')
@@ -66,7 +65,6 @@ app.post('/api/google/location', ctrl.getEventLocation)
 app.get('/chat', function(req, res) {
   res.status(200).send('hello')
 })
-
 
 io.on('connection', async socket => {
   console.log('User connected')
