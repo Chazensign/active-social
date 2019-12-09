@@ -335,7 +335,9 @@ const FunctionalHeader = styled.div`
       display: none;
     }
     .user-initials {
-      margin-right: 40px;
+      position: absolute;
+      top: 26px;
+      right: 70px;
       display: initial;
       font-size: 24px;
       font-weight: 700;

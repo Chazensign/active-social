@@ -454,7 +454,7 @@ const OuterEvents = styled.div`
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      padding: 10px 0 0 0;
+      padding: 0 0 0 0;
     }
     .title-date-img {
       height: 120px;
@@ -475,15 +475,16 @@ const OuterEvents = styled.div`
     }
     .title-date {
       height: 110px;
+      width: 170px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
     }
     h2.event-title {
       justify-self: flex-start;
       align-self: flex-start;
       width: 165px;
-      margin: 0 0 10px 0;
+      margin: 0 0 0 0;
     }
     h4 {
       width: unset;
@@ -495,6 +496,13 @@ const OuterEvents = styled.div`
       width: 275px;
       max-height: 80px;
       margin: 5px 0;
+    }
+    .date{
+      margin: 0 0 0 0;
+    }
+    p.about {
+      margin: 5px;
+      width: 280px;
     }
     .event-img {
       width: 110px;

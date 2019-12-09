@@ -60,9 +60,9 @@ const OuterMenu = styled.div`
     animation: return 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
   }
   .show-menu {
+    contain: content;
     display: flex;
     width: 130px;
-    height: 150px;
     background: white;
     position: fixed;
     right: 20px;
@@ -74,29 +74,28 @@ const OuterMenu = styled.div`
     justify-content: space-around;
     font-size: 24px;
     box-shadow: 3px 3px 15px -1px #000000;
-    animation: drop-inner 4000ms cubic-bezier(0.25, 0.1, 0.25, 1);
   }
   .link {
+    animation: drop-inner 400ms cubic-bezier(0.25, 0.1, 0.25, 1);
     color: black;
-    margin: 5px;
+    margin: 18px 25px 15px 25px;
   }
   @keyframes drop {
     from {
       height: 0;
-      font-size: 0px;
-    }
-    to {
+    }to {
       height: 100vh;
-      font-size: 24px;
     }
   }
   @keyframes drop-inner {
     from {
-      height: 0;
+      width: 10px;
+      margin: 0;
       font-size: 0px;
     }
     to {
-      height: 200px;
+      width: 80px;
+      margin: 18px 25px 15px 25px;
       font-size: 24px;
     }
   }
